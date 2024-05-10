@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Web.Views.Shared.Components.ConfirmationModal
+@using SurveyUs.Web.Views.Shared.Components.Footer
+@using SurveyUs.Web.Views.Shared.Components.FormModal
+@using SurveyUs.Web.Views.Shared.Components.Header
+@using SurveyUs.Web.Views.Shared.Components.ImageModal
+@using SurveyUs.Web.Views.Shared.Components.Logout
+@using SurveyUs.Web.Views.Shared.Components.Sidebar
+@using SurveyUs.Web.Views.Shared.Components.Title
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>SurveyUs</title>
+    <partial name="_Styles" />
+</head>
+<body class="hold-transition sidebar-mini">
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section"></div>
+    </div>
+    <div class="wrapper">
+        @(await Component.InvokeAsync<HeaderViewComponent>())
+        @(await Component.InvokeAsync<SidebarViewComponent>())
+        <div class="content-wrapper" id="contentWrapper">
+            @if (User.IsInRole("Guinness Judge") && !User.IsInRole("Heineken Judge") && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin") && !User.IsInRole("Bartender"))
+            {
+                <div class="content">
+                    <div class="container-fluid">
+                        @(await Component.InvokeAsync<TitleViewComponent>())
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="content">
+                    <div class="container-fluid">
+                        @(await Component.InvokeAsync<TitleViewComponent>())
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+            @*<div class="content">
+                <div class="container-fluid">
+                    @(await Component.InvokeAsync<TitleViewComponent>())
+                    @RenderBody()
+                </div>
+            </div>*@
+        </div>
+        @(await Component.InvokeAsync<FooterViewComponent>())
+        @(await Component.InvokeAsync<LogoutViewComponent>())
+        @(await Component.InvokeAsync<FormModalViewComponent>())
+        @(await Component.InvokeAsync<ImageModalViewComponent>())
+        @(await Component.InvokeAsync<ConfirmationModalViewComponent>())
+        @*<partial name="AdminLTE/_LogoutModal" />
+            <partial name="AdminLTE/Modals/_FormModal" />
+            <partial name="AdminLTE/_ImageModal" />*@
+    </div>
+    <partial name="_Scripts" />
+    @await Component.InvokeAsync("Notyf")
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

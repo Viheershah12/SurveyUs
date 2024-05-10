@@ -1,0 +1,186 @@
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">@localizer["Users"]</h3>
+</div>
+
+<div class="card">
+        @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+        {
+                <div class="col-sm-9 col-12" style="padding: 20px;">
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <a onclick="jQueryModalGet('/admin/user/OnGetCreate','Create User')" class="btn bg-success">
+                            <i class="fa fa-plus-square"></i> Create User
+                        </a>
+                        <a onclick="jQueryModalGet('/admin/user/BulkUpload','Bulk Upload')" class="btn bg-success">
+                            <i class="fa fa-plus-square"></i> Bulk Upload
+                        </a>
+                    }
+                        <a onclick="jQueryModalGet('/admin/user/AddMysteryShopper','Add Mystery Drinker')" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create Mystery Drinker
+                    </a>
+                </div>
+                @* <div class="col-sm-3 pt-sm-3 col-12 text-right" style="padding-right: 20px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                            <form class="text-center pb-2" asp-area="PDF" asp-controller="PDF" asp-action="AllUsersPDF" method="post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllUsersPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    All Users
+                                </button>
+                            </form>
+                            <form class="text-center pb-2" asp-area="PDF" asp-controller="PDF" asp-action="" method="post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllJudgesPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Judges
+                                </button>
+                            </form>
+                            <form class="text-center" asp-area="PDF" asp-controller="PDF" asp-action="" method="post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllBartendersPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Bartenders
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div> *@
+        }
+        @*<a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>*@
+    <div id="viewAll" class="card-body table-responsive">
+        <table class="table table-striped" id="userTable">
+            <thead>
+                <tr>
+                    <th>
+                        @localizer["No."]
+                    </th>
+                    <th>
+                        @localizer["User"]
+                    </th>
+                    <th>
+                        @localizer["Email"]
+                    </th>
+                    <th>Role</th>
+                    <th>
+                        @localizer["Status"]
+                    </th>
+                    <th style="width:10%">
+                        @localizer["Actions"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#userTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/user/GetUsersListing",
+                    type: 'post',
+                    data: function (dto) { 
+                        dto.start = dto.start || 0;
+                        return dto;
+                    }
+                },
+                "columns": [
+                    {
+                        "data": null,
+                        "orderable": false,
+                        "name": "CreatedOn",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#userTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "null", "name": "FirstName",
+                        "render": function (data, type, row) {
+                            return row.firstName + " " + row.lastName;
+                        },
+                    },
+                    { "data": "email", "name": "Email" },
+                    { 
+                        "data": "role", "name": "Role" 
+                    },
+                    {
+                        "data": "isActive", "name": "IsActive",
+                        "render": function (data, type, row) {
+                            if (row.isActive) {
+                                labelHtml = '<span class="badge badge-success">Active</span>'
+                            }
+                            else {
+                                labelHtml = '<span class="badge badge-danger">Inactive</span>'
+                            }
+
+                            return labelHtml;
+                        }
+                    },
+                    {
+                        "data": null, "orderable": false,
+                        "render": function (data, type, row) {
+                            var actionButtonHtml =
+                                '<div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>' +
+                                '<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">' +
+                                '<a href="#" onclick=\'jQueryModalGet("/admin/user/OnGetResetPassword?userId=' + row.id + '", "Reset Password - ' + row.firstName + ' ' + row.lastName + '")\' class="dropdown-item">' +
+                                '<i class="fas fa-key pr-1"></i>Reset Password</a>' +
+                                '<a href="#" onclick=\'jQueryModalGet("/admin/user/OnGetEditUser?userId=' + row.id + '", "Edit User - ' + row.firstName + ' ' + row.lastName + '")\' class="dropdown-item">' +
+                                '<i class="fas fa-user-edit pr-1"></i>Edit User</a>';
+
+                            if (!row.isActive)
+                            {
+                                actionButtonHtml += '<form id="form_activate_' + row.id + '" onclick="return jQueryModalPost(this);" action="/admin/user/onactivateuser?userId=' + row.id + '" method="post">' +
+                                    '<a href="javascript:$(\'#form_activate_' + row.id + '\').submit();" class="dropdown-item">' +
+                                    '<i class="fas fa-user-check pr-1"></i> Activate User</a></form>';
+                            }
+                            else
+                            {
+                                 actionButtonHtml += '<form id="form_deactivate_' + row.id + '" onclick="return jQueryModalPost(this);" action="/admin/user/ondeactivateuser?userId=' + row.id +'" method="post">' +
+                                    '<a href="javascript:$(\'#form_deactivate_' + row.id + '\').submit();" class="dropdown-item">' +
+                                    '<i class="fas fa-user-minus pr-1"></i> Deactivate User</a></form>';
+                            }
+
+                            if ('@(User.IsInRole("SuperAdmin"))' == 'True')
+                            {
+                                actionButtonHtml += '<a href="userrole/index?userid=' + row.id + '" class="dropdown-item">' +
+                                                    '<i class="fas fa-wrench pr-1"></i> Manage Roles</a>';
+                            }
+
+                            actionButtonHtml += '</div> </div>';
+
+                            return actionButtonHtml;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+}

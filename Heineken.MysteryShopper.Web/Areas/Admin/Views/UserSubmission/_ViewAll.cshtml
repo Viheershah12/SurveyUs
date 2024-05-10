@@ -1,0 +1,57 @@
+﻿@model SurveyUs.Web.Areas.Admin.Models.UserSubmissionViewModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+ 
+<table class="table table-striped" id="userSubmissionTable">
+    <thead>
+        <tr>
+            <th>
+                @localizer["No."]
+            </th>
+            <th>
+                @localizer["User Name"]
+            </th>
+            <th>
+                @localizer["Store Name"]
+            </th>
+            <th width="10%">
+                @localizer["Actions"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 1;
+            foreach (var submission in Model.UserSubmissions)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        @submission.UserName.ToString()
+                    </td>
+                    <td>
+                        @submission.StoreName.ToString()
+                    </td>
+                    <td text-right>
+                    <div>
+                        <a href="/admin/usersubmission/ViewSubmission?storeId=@submission.StoreId&campaignId=@Model.CampaignId&userId=@submission.UserId" class="p-2">
+                            <i class="fas fa-eye" style="font-size: 1.2em;"></i>
+                        </a>
+                    </div>
+                    </td>
+                </tr>
+                i += 1;
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $("#userSubmissionTable").DataTable(
+            {
+                searching: true
+            });
+    });
+</script>

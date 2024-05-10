@@ -1,0 +1,114 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.QuestionViewModel
+
+<form id="create-question" method="post" asp-area="Admin" asp-controller="QuestionSetting" asp-action="OnPostCreateOrEditQuestion" asp-route-id="@Model.Id" onsubmit="return jQueryModalPost(this);" class="needs-validation" novalidate>
+    @Html.Hidden("editOptions", Html.Raw(Json.Serialize(Model.Options)))
+    @Html.HiddenFor(m => m.Id)
+    <div class="modal-body">
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Question Category</label>
+            <div class="col-md-9">
+                @Html.DropDownListFor(model => model.CategoryId, Model.QuestionCategoryDropdown, "Select a Question Category", new { @required="required", @class = "form-control custom-select" })
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Question Type</label>
+            <div class="col-md-9">
+                @Html.DropDownListFor(model => model.ResponseType, Model.QuestionTypeDropdown, "Select a Question Type", new { @class = "form-control custom-select", @required = "required", onchange = "handleQuestionTypeChange(this.value)" })
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Question Text</label>
+            <div class="col-md-9">
+                <input type="text" asp-for="QuestionText" name="QuestionText" class="form-control" required="required" placeholder="Question Text" required="required">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+
+        <div id="optionsContainer" class="form-group row" style="display: none;">
+            <label class="col-md-3 col-form-label">Options</label>
+            <div class="col-md-9">
+                <div id="optionsDiv"></div>
+                <div class="row">
+                    <div class="col-sm-auto">
+                        <button type="button" class="btn btn-primary" onclick="addOption()">Add Option</button>
+                    </div>
+
+                    <div class="col-sm-auto" id="removeOptionContainer" style="display: none;">
+                        <button type="button" class="btn btn-danger" onclick="removeOption(this)">Remove Option</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Points</label>
+            <div class="col-md-9">
+                <input type="number" asp-for="Points" name="Points" class="form-control" required="required">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label" asp-for="HasMedia">Has Media</label>
+            <div class="col-md-auto">
+                <input type="checkbox" asp-for="HasMedia" name="HasMedia" class="form-control">
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label" asp-for="HasReward">Has Reward</label>
+            <div class="col-md-auto">
+                <input type="checkbox" asp-for="HasReward" name="HasReward" class="form-control">
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Display Order</label>
+            <div class="col-md-9">
+                <input type="number" asp-for="DisplayOrder" name="DisplayOrder" class="form-control" >
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        
+        
+        @if (Model.Id > 0)
+        {
+            <div class="form-group row">
+                <label class="col-md-3 col-form-label">Correct Answers</label>
+                <div class="col-md-9">
+                    @for(int i = 0; i < Model.QuestionOptions.Count; i++)
+                    {
+                        @Html.HiddenFor(x => x.QuestionOptions[i].QuestionId)
+                        @Html.HiddenFor(x => x.QuestionOptions[i].QuestionChoiceId)
+
+                        <div class="row mb-3">
+                            <div class="col-10">
+                                <input type="text" class="form-control" value="@Model.QuestionOptions[i].ChoiceText" disabled="disabled">
+                            </div>
+                            @Html.CheckBoxFor(x => x.QuestionOptions[i].IsCorrect)
+                        </div>
+                    }
+     
+                </div>
+            </div>
+        }
+  
+    </div>
+
+    <div id="hiddenOptions" style="display: none;"></div>
+    <div class="modal-footer" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success" id="saveBtn">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+@* <script src="~/js/site.js"></script> *@
+
+<script>
+    $.validator.unobtrusive.parse(document);
+</script>

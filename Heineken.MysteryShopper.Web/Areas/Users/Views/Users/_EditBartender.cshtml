@@ -1,0 +1,48 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Users.Models.BartenderViewModel
+
+<form id="create-form" method="post" asp-area="Users" asp-controller="Users" asp-action="OnPostEdit" asp-route-testId="@TempData.Peek("TEST_ID")" asp-route-userId="@TempData.Peek("USER_ID")" onsubmit="return jQueryModalPost(this);" enctype="multipart/form-data">
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">Name</label>
+        <div class="col-md-9">
+            <input type="text" asp-for="Name" name="Name" class="form-control" readonly> @*Added readonly field so that user cannot edit their name*@
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">Gender</label>
+        <div class="col-md-9">
+            <select type="text" asp-for="Gender" name="Gender" class="form-control" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">Telephone</label>
+        <div class="col-md-9">
+            <input type="tel" asp-for="Telephone" name="Telephone" class="form-control" pattern="^(?=*[\d\s-]{9,})[\d\s-]+$" required>
+            <span asp-validation-for="Telephone" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">Uniform Size</label>
+        <div class="col-md-9">
+            <select type="text" asp-for="UniformSize" name="UniformSize" class="form-control" required>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+
+</form>
+
+<script src="~/js/site.js"></script>

@@ -1,0 +1,321 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model SurveyUs.Web.Areas.Admin.Models.QuestionViewModel
+
+<div class="row">
+    <div class="col-sm-auto">
+        <h3 class="mb-3 ml-2" style="color:black">@localizer["Question Settings"]</h3>
+    </div>
+</div>
+
+<div class="card">
+    <ul class="nav nav-tabs nav-justified">
+        <li class="nav-item" id="categoryNavItem">
+            <a class="nav-link active bold-active" data-toggle="tab" href="#category" aria-controls="category" name="mappingTabs">Question Category</a>
+        </li>
+        <li class="nav-item" id="questionNavItem">
+            <a class="nav-link" data-toggle="tab" href="#question" aria-controls="question" name="mappingTabs">Question</a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <div class="card tab-pane active" style="margin-left:unset" id="category">
+        <div class="col-sm-9 col-12" style="padding: 20px;">
+            <a onclick="jQueryModalGet('/admin/questionsetting/OnGetCreateOrEditQuestionCategory','Create Question Category')" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create Question Category
+            </a>
+        </div>
+        <div id="viewAll" class="viewAllQuestionCategories p-3 table-responsive">
+            <table class="table table-striped" id="categoryTable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            @localizer["Category Name"]
+                        </th>
+                        <th>
+                            @localizer["Created On"]
+                        </th>
+                        <th>
+                            @localizer["Created By"]
+                        </th>
+                        <th style="width:10%">
+                            @localizer["Actions"]
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="card tab-pane fade" style="margin-left:unset" id="question">
+        <div class="col-6" style="padding:20px">
+            <a onclick="jQueryModalGet('/admin/questionsetting/OnGetCreateOrEditQuestion','Create Question')" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create Question
+            </a>
+        </div>
+        <div id="viewAll" class="viewAllQuestions p-3 table-responsive">
+            <table class="table table-striped" id="questionTable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            @localizer["Question Category"]
+                        </th>
+                        <th>
+                            @localizer["Question Type"]
+                        </th>
+                        <th>
+                            @localizer["Question Text"]
+                        </th>
+                        <th style="width:10%">
+                            @localizer["Actions"]
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bold-active {
+        font-weight: bold;
+    }
+</style>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            var questionMapping = @Html.Raw(EnumHelper.GetEnumAsJson<QuestionTypeEnum>());
+
+            var categoryTable = $('#categoryTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            categoryTable.search(this.value);
+                            categoryTable.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            categoryTable.search(this.value);
+                            categoryTable.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/questionsetting/OnGetQuestionCategories",
+                    type: 'post',
+                    data: function (dto) {
+                        return dto;
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    { "orderable": false, "targets": -1 }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "CreatedOn",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#categoryTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "categoryName", "name": "CategoryName" },
+                    { "data": "createdOnString", "name": "CreatedOnString" },
+                    { "data": "createdBy", "name": "CreatedBy" },
+                    {
+                        "data": null, "orderable": false,
+                        "render": function (data, type, row) {
+                            var actionButtonHtml = '<div class="btn-group">' +
+                                '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>' +
+                                '<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">';
+
+                            actionButtonHtml += '<a href="#" onclick="jQueryModalGet(\'/Admin/QuestioNSetting/OnGetCreateOrEditQuestionCategory?categoryId=' + row.id + '\', \'Edit Question Category\')" class="dropdown-item">' +
+                                '<i class="fas fa-pencil-alt pr-1"></i>Edit Question Category</a>';
+
+                            actionButtonHtml += '</div></div>';
+
+                            return actionButtonHtml;
+                        }
+                    }
+                ]
+            });
+
+            var questionTable = $('#questionTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            questionTable.search(this.value);
+                            questionTable.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            questionTable.search(this.value);
+                            questionTable.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/questionsetting/OnGetQuestion",
+                    type: 'post',
+                    data: function (dto) {
+                        return dto;
+                    }
+                },
+                "autoWidth": false,
+                "columnDefs": [
+                    {
+                        "orderable": false, "targets": 0
+                    },
+                    {
+                        "targets": 2, "width": "15%"
+                    },
+                    {
+                        "orderable": false, "targets": -1, "width": "10%"
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "CreatedOn",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#questionTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "categoryName", "name": "CategoryName" },
+                    { "data": "responseTypeString", "name": "ResponseTypeString" },
+                    { "data": "questionText", "name": "QuestionText" },
+                    {
+                        "data": null, "orderable": false,
+                        "render": function (data, type, row) {
+                            var actionButtonHtml = '<div class="btn-group">' +
+                                '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>' +
+                                '<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">';
+
+                            actionButtonHtml += '<a href="#" onclick="jQueryModalGet(\'/Admin/QuestioNSetting/OnGetCreateOrEditQuestion?questionId=' + row.id + '\', \'Edit Question\')" class="dropdown-item">' +
+                                '<i class="fas fa-pencil-alt pr-1"></i>Edit Question</a>';
+
+                            actionButtonHtml += '</div></div>';
+
+                            return actionButtonHtml;
+                        }
+                    }
+                ]
+            });
+
+            $('#categoryNavItem').on('click', function () {
+                campaignTable.ajax.reload();
+            });
+
+            $('#questionNavItem').on('click', function () {
+                questionTable.ajax.reload();
+            });
+        });
+
+        var optionsData = []; 
+
+        function handleQuestionTypeChange(selectedValue) {
+            var optionsContainer = $('#optionsContainer');
+            optionsContainer.toggle(selectedValue === "@((int)QuestionTypeEnum.MultipleChoice)" || selectedValue === "@((int)QuestionTypeEnum.MultiSelect)");
+        }
+
+        function addOption(value) {
+            var containerDiv = $('<div class="row mb-3">');
+            var inputDiv = $('<div class="col-10">')
+            var buttonDiv = $('<div class="col-2">')
+
+            var optionsDiv = $('#optionsDiv');
+
+            var input = $('<input>').attr({
+                type: 'text',
+                name: 'Options', // You may want to adjust the name based on your model
+                class: 'form-control',
+                required: 'required',
+                placeholder: 'Option Text',
+                value: value
+            });
+            inputDiv.append(input);
+
+            // Create a new remove button
+            var removeButton = $('<button class="btn btn-danger">Remove</button>');
+            removeButton.click(function () {
+                // Remove the text box and the remove button when clicked
+                containerDiv.remove();
+            });
+            buttonDiv.append(removeButton);
+
+            containerDiv.append(inputDiv, buttonDiv);
+            optionsDiv.append(containerDiv);
+        }
+
+        function prepareOptionsAndSubmit() {
+            prepareOptions();
+            jQueryModalPost(document.getElementById('create-question'));
+        }
+
+        function prepareOptions() {
+            var hiddenOptions = $('#hiddenOptions');
+            hiddenOptions.empty();
+
+            // Collect options and create hidden fields
+            $('input[name="Options"]').each(function (index, element) {
+                hiddenOptions.append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'Options[' + index + ']',
+                    value: element.value
+                }));
+            });
+        }
+
+        $('#form-modal').on('shown.bs.modal', function () {
+            var id = $("#Id").val();
+
+            if (id > 0) {
+                $("#ResponseType").prop("disabled", true);
+            }
+
+            var responseType = $("#ResponseType").val();
+            if (responseType == @((int)QuestionTypeEnum.MultipleChoice) || responseType == @((int)QuestionTypeEnum.MultiSelect)) {
+                showOptions(responseType);
+            }
+        });
+
+        function showOptions(responseType) {
+            var choices = $("#editOptions").val();
+            var jsonArray = JSON.parse(choices);
+
+            $.each(jsonArray, function (index, value) {
+                addOption(value);
+            });
+
+            $("#optionsContainer").show();
+        }
+    </script>
+}

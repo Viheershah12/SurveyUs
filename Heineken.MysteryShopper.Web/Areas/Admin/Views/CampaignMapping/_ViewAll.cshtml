@@ -1,0 +1,148 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.PagedCampaignMappingsViewModel
+
+<style>
+    .fa-times {
+        font-size: 1.3em;
+        color: red;
+    }
+</style>
+@* <form id="assign-store" method="post" asp-area="Admin" asp-controller="CampaignMapping" asp-action="OnPostAssign" asp-route-campaignId=@Model.CampaignId enctype="multipart/form-data"> *@
+    <table class="table table-striped" id="campaignTable">
+        <thead>
+            <tr>
+                <th>
+                    @localizer["No."]
+                </th>
+                <th>
+                    @localizer["Name"]
+                </th>
+                <th>
+                    @localizer["State"]
+                </th>
+                <th>
+                    @localizer["Created On"]
+                </th>
+                <th>
+                    <div class="row">
+                        <div class="col-md-6 text-right">
+                            @localizer["Assign"]
+                        </div>
+                        <div class="col-md-6 text-left">
+                            <div class="form-check">
+                            <input class="form-check-input store-checkbox" type="checkbox" onchange="selectAllClicked(this)" id="select-all-checkbox">
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var i = 1;
+            }
+            @foreach (var store in Model.Data)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        @store.Name
+                    </td>
+                    <td>
+                        @store.State
+                    </td>
+                    <td>
+                        @store.CreatedOn.ToString("dd MMMM yyyy")
+                    </td>
+                    <td class ="text-center pr-4">
+                        <div class="form-check">
+                            <input class="form-check-input store-checkbox" type="checkbox" onchange="storeClicked(this)" value="@store.Id" @(store.IsAssigned ? "checked" : "")>
+                        </div>
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+    <div class="text-right pt-3" style="margin-bottom: 0px !important">
+        <button id="save-btn" type="button" onclick="saveMapping()"class="btn btn-success">Save</button>
+    </div>
+@* </form> *@
+@* <form id="test-sql" method="post" asp-area="Admin" asp-controller="CampaignMapping" asp-action="TestSQL" asp-route-campaignId=@Model.CampaignId enctype="multipart/form-data">
+    <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+        <button id="save-btn" type="submit" class="btn btn-success">Test SQL</button>
+    </div>
+</form> *@
+<script>
+    $(document).ready(function () {
+        // var initialCheckboxStates = {};
+        // var editedStores = {};
+
+        //Track changes to checkboxes
+        // $('.store-checkbox').change(function () {
+        //     var storeId = $(this).val();
+        //     var isChecked = $(this).prop('checked');
+        //     var wasCheckedInitially = initialCheckboxStates[storeId];
+
+        //     if (isChecked !== wasCheckedInitially) {
+        //         editedStores[storeId] = isChecked;
+        //     } else {
+        //         delete editedStores[storeId];
+        //     }
+        // });
+
+        // $('#select-all-checkbox').change(function (event) {
+        //     event.preventDefault();
+
+        //     var isChecked = $(this).prop('checked');
+        //     $('.store-checkbox').prop('checked', isChecked);
+
+        //     $('.store-checkbox').each(function () {
+        //         var storeId = $(this).val();
+        //         var isChecked = $(this).prop('checked');
+        //         var wasCheckedInitially = initialCheckboxStates[storeId];
+        //         if (isChecked !== initialCheckboxStates[storeId]) {
+        //             editedStores[storeId] = isChecked;
+        //         } else {
+        //             delete editedStores[storeId];
+        //         }
+        //     });
+        // });
+
+        // $('#save-btn').click(function (event) {
+        //     event.preventDefault();
+
+        //     var editedStoreIds = Object.keys(editedStores).filter(function (key) {
+        //         return key !== "on";
+        //     });
+
+        //     $.ajax({
+        //         url: '/Admin/CampaignMapping/OnPostAssign',
+        //         type: 'POST',
+        //         data: { editedStoreIds: editedStoreIds, campaignId: @Model.CampaignId },
+        //         success: function (response) {
+        //             editedStores = {};
+        //             //window.location.reload();
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error('Error occurred:', error);
+        //         }
+        //     });
+        // });
+
+        // function resetCheckboxes() {
+        //     $('.store-checkbox').each(function () {
+        //         var storeId = $(this).val();
+        //         var initialState = initialCheckboxStates[storeId];
+        //         $(this).prop('checked', initialState);
+        //     });
+        //     editedStores = {};
+        // }
+
+        // $(document).on('click', '.paginate_button', function () {
+        //     resetCheckboxes();
+        // });
+    });
+</script>

@@ -1,0 +1,107 @@
+﻿
+
+@model List<SurveyUs.Web.Areas.PDF.Models.PDFModel>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Star Academy Scores</title>
+		<style>
+			body {
+				font-family: 'Open Sans', sans-serif;
+				color: #333;
+				background-color: #f9f9f9;
+				padding: 20px;
+				line-height: 1.5;
+			}
+
+			h1 {
+				font-size: 36px;
+				margin-bottom: 30px;
+				color: #e07a5f;
+				text-align: center;
+			}
+
+			table {
+				border-collapse: collapse;
+				width: 100%;
+				margin-top: 30px;
+			}
+
+			th, td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			th {
+				background-color: #007F2D;
+				color: #fff;
+				font-weight: normal;
+				text-transform: uppercase;
+			}
+
+			tr:hover {
+				background-color: #f5f5f5;
+			}
+
+			.header {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				padding: 10px;
+				box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+				z-index: 100;
+			}
+
+			.footer {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				padding: 10px;
+				box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.1);
+				font-size: 12px;
+				color: #999;
+				text-align: center;
+				z-index: 100;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">
+			<h2>Star Academy Global Scores</h2>
+			<p>Date: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+		</div>
+		<h1>Star Academy Global Scores</h1>
+		<table>
+			<thead>
+                <tr>
+                    <th>No.</th>
+                    <th class="border-side">Name</th>
+                    <th class="border-side">Store</th>
+                    <th class="border-side">Represent As</th>
+                    <th class="border-side">Outlet Name</th>
+                    <th>Score</th>
+                </tr>
+			</thead>
+			<tbody>
+				@for (int i = 0; i < Model.Count; i++)
+				{
+					<tr class="score">
+						<td class="text-center">@(i + 1)</td>
+						<td class="border-side">@Model[i].Name</td>
+						<td class="border-side text-center">@Model[i].State</td>
+						<td class="border-side text-center">@Model[i].RepresentAs</td>
+						<td class="border-side text-center">@Model[i].OutletName</td>
+						<td class="text-center">@Model[i].Score</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</body>
+</html>

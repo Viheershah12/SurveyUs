@@ -1,0 +1,36 @@
+﻿@model SurveyUs.Web.Areas.Admin.Models.StoreViewModel
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">@localizer["Campaigns"]</h3>
+</div>
+
+<div class="card">
+   @*  @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+    {
+        <div class="row">
+            <div class="col-sm-9 col-12" style="padding: 20px;">
+                 @if (!User.IsInRole("Admin"))
+                {
+                    <a onclick="jQueryModalGet('/admin/campaign/OnGetCreateOrEdit','Create Campaign')" class="btn bg-success col-xl-3 col-sm-3 mb-sm-0 col-12 mb-2">
+                        <i class="fa fa-plus-square"></i> Create
+                    </a>
+                } 
+            </div>          
+        </div>
+    } *@
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#campaignTable").DataTable();
+            loadData();
+        });
+        function loadData() {
+            $('#viewAll').load('/campaign/campaign/LoadAll');
+        }
+    </script>
+}

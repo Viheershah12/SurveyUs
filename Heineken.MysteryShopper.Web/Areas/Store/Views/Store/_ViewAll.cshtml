@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Application.Constants
+@model SurveyUs.Web.Areas.Store.Models.ScoreboardStoreViewModel
+
+<table class="table table-striped" id="storesTable">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Store</th>
+            <th>State</th>
+            <th>Created On</th>
+            <th>Status</th>
+@*             <th>End Date</th> *@
+            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Delete)).Result.Succeeded || (AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Edit)).Result.Succeeded)
+            {
+                @* <th>Edit</th>
+                <th>Delete</th>
+                <th>Actions</th> *@
+            }       
+@*             @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <th>Generate Report</th>
+            } *@
+        </tr>
+    </thead>
+    <tbody>
+        @{ var i = 1; }
+        @foreach (var store in Model.Stores)
+        {
+            <tr>
+                <td>@i</td>
+
+                <td>
+                    <a is-active-route asp-controller="Questions" asp-area="Questions" asp-action="Index" asp-route-campaignId="@Model.CampaignId" asp-route-storeId="@store.Id">@store.Name</a>
+                </td>
+
+                <td>@store.State</td>
+                <td>@store.CreatedOn.ToString("dd MMMM yyyy")</td>
+                <td>
+                    @{
+                        if (store.IsCompletedQuiz)
+                        {
+                            <span class="badge badge-success">Complete</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">Incomplete</span>
+                        }
+                    }
+                </td>
+                @* <td>@store.UpdatedOn.ToString("dd MMMM yyyy HH:mm")</td> *@
+
+               @*  @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Delete)).Result.Succeeded || (AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Edit)).Result.Succeeded)
+                {
+                    <td text-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <a onclick="jQueryModalGet('/Store/Store/OnGetEdit?id=@store.Id', 'Edit Store')" class="dropdown-item">
+                                    <i class="fas fa-pencil-alt"></i> @localizer["Edit"]
+                                </a>
+                                <form id="form_delete_@store.Id" asp-area="Store" asp-controller="Store" method="post" asp-action="OnPostDelete" asp-route-id="@store.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@store.Id').submit();" style="color: red;" class="dropdown-item">
+                                        <i class="fas fa-trash-alt"></i> @localizer["Delete"]
+                                     </a>
+                                </form>
+                                <form id="form_activate_@store.Id" asp-area="Store" asp-controller="Store" method="post" asp-action="OnPostActivate" asp-route-storeId="@store.Id" asp-route-isActivate="@store.IsActive">
+                                    <a href="javascript:$('#form_activate_@store.Id').submit();" class="dropdown-item">
+                                        @if(store.IsActive)
+                                        {
+                                            <i class="fas fa-store"></i> @localizer["Deactivate Store"]
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-store"></i> @localizer["Activate Store"]
+                                        }
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                } *@
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+<script>$(document).ready(function () {
+        $("#storesTable").dataTable({
+            searching: true
+        });
+    });
+</script>
+

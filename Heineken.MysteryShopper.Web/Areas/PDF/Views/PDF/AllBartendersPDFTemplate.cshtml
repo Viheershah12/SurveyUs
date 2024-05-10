@@ -1,0 +1,137 @@
+﻿
+
+@model List<SurveyUs.Web.Areas.PDF.Models.BartenderPDFModel>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Star Academy Bartenders</title>
+		<style>
+			body {
+				font-family: 'Open Sans', sans-serif;
+				color: #333;
+				background-color: #f9f9f9;
+				padding: 20px;
+				line-height: 1.5;
+			}
+
+			h1 {
+				font-size: 36px;
+				margin-bottom: 30px;
+				color: #e07a5f;
+				text-align: center;
+			}
+
+			table {
+				border-collapse: collapse;
+				width: 100%;
+				margin-top: 30px;
+			}
+
+			th, td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			th {
+				background-color: #007F2D;
+				color: #fff;
+				font-weight: normal;
+				text-transform: uppercase;
+				text-align: center;
+			}
+
+			tr:hover {
+				background-color: #f5f5f5;
+			}
+
+			.store {
+				color: #007F2D;
+				font-weight: bold;
+				text-transform: uppercase;
+			}
+
+			.score {
+				color: #333;
+				font-weight: bold;
+			}
+
+			.bartender-count {
+				color: #333;
+				font-weight: bold;		
+				font-size: 12px;
+			}
+
+			.uniform-size {
+				text-align: center;
+			}
+
+			.header {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				padding: 10px;
+				box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+				z-index: 100;
+			}
+
+			.footer {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				padding: 10px;
+				box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.1);
+				font-size: 12px;
+				color: #999;
+				text-align: center;
+				z-index: 100;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">
+			<h2>Star Academy Bartenders</h2>
+			<p>Date: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+		</div>
+		<h1>Star Academy Bartenders</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>IC</th>
+					<th>Telephone</th>
+					<th>Gender</th>
+					<th>Outlet Name</th>
+					<th>Outlet Address</th>
+					<th>Outlet Location</th>
+					<th>Joining As</th>
+					<th>Designation</th>
+					<th>Uniform Size</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>@item.Name</td>
+						<td>@item.IC</td>
+						<td>@item.PhoneNo</td>
+						<td>@item.Gender</td>
+						<td>@item.OutletName</td>
+						<td>@item.OutletAddress</td>
+						<td>@item.OutletLocation</td>
+						<td>@item.JoiningAs</td>
+						<td>@item.Designation</td>
+						<td class="uniform-size">@item.ShirtSize</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</body>
+</html>

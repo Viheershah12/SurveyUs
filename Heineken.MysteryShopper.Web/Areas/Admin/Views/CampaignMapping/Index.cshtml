@@ -1,0 +1,262 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model SurveyUs.Web.Areas.Admin.Models.StoresMappingViewModel
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">Store Mapping - @Model.CampaignName</h3>
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/admin/campaignSetting/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Campaign Settings</a>
+        <a href="~/admin/campaignMapping/index?campaignId=@Model.CampaignId" class="btn btn-default">Store Mapping</a>
+    </div>
+</div>
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+        <table class="table" id="campaignTable" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>
+                        @localizer["No."]
+                    </th>
+                    <th>
+                        @localizer["Name"]
+                    </th>
+                    <th>
+                        @localizer["State"]
+                    </th>
+                    <th>
+                        @localizer["Created On"]
+                    </th>
+                    <th class="text-center">
+                        <div class="row">
+                            <div class="col-md-6 text-right">
+                                @localizer["Assign"]
+                            </div>
+                            <div class="col-md-6 text-left">
+                                <div class="form-check">
+                                    <input class="form-check-input store-checkbox" type="checkbox" onchange="selectAllClicked(this)" id="select-all-checkbox">
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            @* <tbody>
+                @{
+                    var i = 1;
+                }
+                @foreach (var store in Model.Stores)
+                {
+                    <tr>
+                        <td>
+                            @i
+                        </td>
+                        <td>
+                            @store.Name
+                        </td>
+                        <td>
+                            @store.State
+                        </td>
+                        <td>
+                            @store.CreatedOn.ToString("dd MMMM yyyy")
+                        </td>
+                        <td class="text-center pr-4">
+                            <div class="form-check">
+                                <input class="form-check-input store-checkbox" type="checkbox" value="@store.Id" @(store.IsAssigned ? "checked" : "")>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody> *@
+        </table>
+        <div class="text-right pt-3" style="margin-bottom: 0px !important">
+            <button id="save-btn" type="button" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .bold-active {
+        font-weight: bold;
+    }
+</style>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        var initialCheckboxStates = {};
+        var editedStores = {};
+        $(document).ready(function () {
+            var stateMapping = @Html.Raw(EnumHelper.GetEnumAsJson<StateEnum>());
+
+            var table = $('#campaignTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax" : {
+                    dataType: 'json',
+                    url: "/admin/campaignmapping/getcampaignmappingslisting",
+                    type: 'post',
+                    data: function (dto) {
+                        dto.campaignid = @Model.CampaignId;
+                        return dto;
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    {
+                        "targets": -1, // Target the last column (containing the checkbox)
+                        "className": "text-center" // Apply the 'text-center' class to center-align the content
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Id",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#campaignTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "name", "name": "Name" },
+                    { "data": "state", "name" : "State",
+                        "render": function (data, type, row) {
+                            return stateMapping[data]
+                        }, "searchable": true
+                    },
+                    { "data": "createdOn", "name": "Created On",
+                        "render": function (data, type, row) {
+                            var date = new Date(data);
+                            var day = date.getDate();
+                            var month = date.toLocaleString('default', { month: 'long' });
+                            var year = date.getFullYear();
+
+                            var formattedDate = day + ' ' + month + ' ' + year;
+
+                            return formattedDate;
+                        }
+                    },
+                    {
+                        "data": null, "name": "Assign", "orderable": false,
+                        "render": function (data, type, row) {
+                            var checkboxHtml = '<input class="form-check-input store-checkbox" type="checkbox" onchange="storeClicked(this)" value="' + row.id + '"';
+
+                            if (row.isAssigned) {
+                                checkboxHtml += ' checked';
+                            }
+
+                            checkboxHtml += '>';
+
+                            return checkboxHtml;
+                        }
+                    }
+                ],
+                "drawCallback": function (settings) { //repopulate information after page loads
+                    initialCheckboxState();
+                    editedStores = {};
+                    $('.store-checkbox').each(function () {
+                        var storeId = $(this).val();
+                        initialCheckboxStates[storeId] = $(this).prop('checked');
+                    });
+                }
+            });
+
+            // $('#campaignTable').on('draw.dt', function () {
+            //     $('#campaignTable tbody tr').each(function (index) {
+            //         $(this).find('td:first').text(index + 1);
+            //     });
+            // });
+        });
+
+        function resetCheckboxes() {
+            $('.store-checkbox').each(function () {
+                var storeId = $(this).val();
+                var initialState = initialCheckboxStates[storeId];
+                $(this).prop('checked', initialState);
+            });
+            editedStores = {};
+        }
+
+        function selectAllClicked(checkbox) {
+            event.preventDefault();
+
+            var isChecked = $(checkbox).prop('checked');
+            $('.store-checkbox').prop('checked', isChecked);
+
+            $('.store-checkbox').each(function () {
+                var storeId = $(this).val();
+                var isChecked = $(this).prop('checked');
+                var wasCheckedInitially = initialCheckboxStates[storeId];
+                if (isChecked !== initialCheckboxStates[storeId]) {
+                    editedStores[storeId] = isChecked;
+                } else {
+                    delete editedStores[storeId];
+                }
+            });
+        }
+
+        $(document).on('click', '#save-btn', function (event) {
+            event.preventDefault();
+
+            var editedStoreIds = Object.keys(editedStores).filter(function (key) {
+                return key !== "on";
+            });
+
+            var table = $('#campaignTable').DataTable();
+
+            $.ajax({
+                url: '/Admin/CampaignMapping/OnPostAssign',
+                type: 'POST',
+                data: Object.assign({ editedStoreIds: editedStoreIds }, { campaignId: @Model.CampaignId}),
+                success: function (response) {
+                    table.ajax.reload(null, false); //reloading table after successful assign
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+        });
+
+        function initialCheckboxState() {
+            $('.store-checkbox').each(function () {
+                var storeId = $(this).val();
+                initialCheckboxStates[storeId] = $(this).prop('checked');
+            });
+        }
+
+        function storeClicked(checkBox) {
+            var storeId = $(checkBox).val();
+            var isChecked = $(checkBox).prop('checked');
+            var wasCheckedInitially = initialCheckboxStates[storeId];
+
+            if (isChecked !== wasCheckedInitially) {
+                editedStores[storeId] = isChecked;
+            } else {
+                delete editedStores[storeId];
+            }
+        }
+    </script>
+}

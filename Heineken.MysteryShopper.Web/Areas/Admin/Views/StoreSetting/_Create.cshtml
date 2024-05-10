@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.StoreViewModel
+<form id="create-form" method="post" asp-area="Admin" asp-controller="StoreSetting" asp-action="OnPostCreate" onsubmit="return jQueryModalPost(this);" enctype="multipart/form-data" class="needs-validation" novalidate>
+    @Html.HiddenFor(m => m.DataTableId)
+    <div class="modal-body">
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Name</label>
+            <div class="col-md-9">
+                <input type="text" asp-for="Name" name="Name" class="form-control" required="required">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Address Line 1</label>
+            <div class="col-md-9">
+                <input type="text" asp-for="Line1" name="Line1" class="form-control" required = "required">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">Address Line 2 (Optional)</label>
+            <div class="col-md-9">
+                <input type="text" asp-for="Line2" name="Line2" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label">State</label>
+            <div class="col-md-9">
+                @Html.DropDownListFor(model => model.State, Model.StateDropdown, "Select a state", new { @class = "form-control custom-select", @required = "required" })
+                <div class="invalid-feedback">Please select an option.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal" onclick='$("#modal").remove();'>Cancel</button>
+    </div>
+
+</form>
+
+<script src="~/js/site.js"></script>
+
+<script>
+    $.validator.unobtrusive.parse(document);
+
+    $(document).ready(function () {
+        $(".datepicker").datepicker({
+            startDate: new Date()
+        });
+    });
+
+</script>

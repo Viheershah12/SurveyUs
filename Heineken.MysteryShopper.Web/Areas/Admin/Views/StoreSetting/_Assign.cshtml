@@ -1,0 +1,130 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.ShopperMappingViewModel
+<form id="assign-mystery-shopper" method="post" asp-area="Admin" asp-controller="StoreSetting" asp-action="OnPostAssign" asp-route-storeId=@Model.StoreId onsubmit="return submitForm(this);" enctype="multipart/form-data">
+    <table class="table table-striped" id="userTable">
+        <thead>
+            <tr class="text-center">
+                <th>
+                    @localizer["User"]
+                </th>
+                <th>
+                    @localizer["Email"]
+                </th>
+                <th>Role</th>
+                <th>
+                    @localizer["Status"]
+                </th>
+                <th style="width:10%">
+                    @localizer["Select"]
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.MShopperMapping)
+            {
+                <tr class="text-center">
+                    <td>
+                        <div class="row">                       
+                            <div class="col-sm">
+                                <a>
+                                    @user.FirstName @user.LastName
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a>
+                            @user.Email
+                        </a>
+                    </td>
+                    <td>
+                        @user.Role
+                    </td>
+                    <td>
+                        @if (user.IsActive)
+                        {
+                            <span class="badge badge-success">@localizer["Active"]</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">@localizer["Inactive"]</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="select_mysteryshopper_@user.Id">
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col text-end">
+            <div class="modal-footer mt-3 pr-0">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success" id="saveButton">Save</button>
+                    <button type="button" class="btn btn-default close-button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+
+    $(document).ready(function () {
+        $("#userTable").DataTable();
+    });
+
+    $(document).ready(function () {
+        $('#saveButton').prop('disabled', true);
+
+        $('#userTable input[type="checkbox"]').change(function () {
+            var anyChecked = $('#userTable input[type="checkbox"]:checked').length > 0;
+            $('#saveButton').prop('disabled', !anyChecked);
+        });
+    });
+
+    function submitForm(form) {
+        try {
+            var Ids = [];
+
+            // Iterate through each checkbox
+            $('#userTable input[type="checkbox"]:checked').each(function () {
+                // Get User Ids from selected checkboxes
+                var userId = this.id.replace('select_mysteryshopper_', '');
+                // Add the user's Id to the Ids array
+                Ids.push(userId);
+            });
+
+            // Join the IDs into a comma-separated string
+            var usersIds = Ids.join(',');
+
+            $.ajax({
+                type: 'POST',
+                url: form.action,
+                data: { userIds: usersIds },
+                success: function (res) {
+                    if (res.isValid) {
+                        $('#viewAll').html(res.html);
+                        $('#form-modal').modal('hide');
+                        console.log("CloseModal");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    console.error(status);
+                    console.error(error);
+                }
+            });
+
+            // Prevent default form submission
+            return false;
+
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
+</script>

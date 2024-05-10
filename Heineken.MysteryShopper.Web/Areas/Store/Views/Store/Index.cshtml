@@ -1,0 +1,65 @@
+﻿@model SurveyUs.Web.Areas.Store.Models.ScoreboardStoreViewModel
+
+<style>
+    .storeButton {
+        padding-right: 10px;
+    }
+</style>
+
+<div class="row">
+    @if (User.IsInRole("Guinness Judge") && !User.IsInRole("Heineken Judge") && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin") && !User.IsInRole("Bartender"))
+    {
+        <h3 class="mb-3 ml-2">@localizer["Stores"]</h3>
+    }
+    else if (User.IsInRole("Heineken Judge") && !User.IsInRole("Guinness Judge"))
+    {
+        <h3 class="mb-3 ml-2">@localizer["Stores"]</h3>
+    }
+    else
+    {
+        <h3 class="mb-3 ml-2">@localizer["Stores"] - @Model.CampaignName</h3>
+    }
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/campaign/campaign/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Campaigns</a>
+        <a href="~/store/store/index?campaignId=@Model.CampaignId" class="btn btn-default">Stores</a>
+    </div>
+</div>
+
+<div class="card">
+    @* @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+    {
+        <div class="row">
+            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Create)).Result.Succeeded)
+            {
+                <div class="col-6" style="padding:20px">
+                    <a onclick="jQueryModalGet('/store/store/OnGetCreate','Create Store')" class="btn bg-success">
+                        <i class="fa fa-plus-square"></i> Create
+                    </a>
+                </div>
+            }
+        </div>
+    } *@
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#storesTable").dataTable({
+                searching: false
+            });
+            loadData();
+        });
+
+        function loadData() {
+            $('#viewAll').load('/store/store/LoadAll?campaignId=@Model.CampaignId');
+        };
+    </script>
+}

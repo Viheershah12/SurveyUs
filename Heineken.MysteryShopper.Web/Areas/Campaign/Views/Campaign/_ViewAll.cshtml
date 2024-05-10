@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model IEnumerable<SurveyUs.Web.Areas.Admin.Models.CampaignSettingViewModel>
+
+<table class="table table-striped" id="campaignTable">
+    <thead>
+        <tr>
+            <th>
+                @localizer["No."]
+            </th>
+            <th>
+                @localizer["Name"]
+            </th>
+            <th>
+                @localizer["Start Date"]
+            </th>
+            <th>
+                @localizer["End Date"]
+            </th>
+            <th>
+                @localizer["Status"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 1;
+        }
+        @foreach (var campaign in Model)
+        {
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    <a is-active-route asp-area="Store" asp-controller="Store" asp-action="Index" asp-route-campaignId="@campaign.Id">@campaign.Name</a>
+                </td>
+                <td>
+                    @campaign.StartDate.ToString("dd MMMM yyyy")
+                </td>
+                <td>
+                    @campaign.EndDate.ToString("dd MMMM yyyy")
+                </td>
+                <td>
+                    @{
+                        switch (campaign.Status)
+                        {
+                            case StatusEnum.Active:
+                                <span class="badge badge-success">Active</span>
+                                break;
+                            case StatusEnum.Inactive:
+                                <span class="badge badge-danger">Inactive</span>
+                                break;
+                            case StatusEnum.Expired:
+                                <span class="badge badge-secondary">Expired</span>
+                                break;
+                        }
+                    }
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#campaignTable").DataTable({
+            searching: true
+        });
+
+    });
+</script>

@@ -1,0 +1,101 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Web
+@inject IHtmlLocalizer<SharedResource> localizer
+<aside id="sideBar" class="main-sidebar sidebar-light-primary">
+    <a href="/" class="brand-link d-flex justify-content-center">
+        @* <img src="~/images/Heineken_logo.jpg" id="brand-logo" alt="logo" class="brand-image img-circle"
+         style="opacity: .8"> *@
+        <span class="brand-text font-weight-light" style="font-size: 0.8em!important">Survey Us</span>
+    </a>
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                @if(User.IsInRole("Mystery Drinker"))
+                {
+                    <li class="nav-item">
+                        <a is-active-route asp-area="Campaign" asp-controller="Campaign" asp-action="Index" class="nav-link">
+                            <i class="nav-icon fas fa-globe"></i>
+                            <p>@localizer["Scorecard"]</p>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+                {
+                    <li class="nav-header">@localizer["Admin"]</li>
+                    <li is-active-route asp-area="Admin" class="nav-item has-treeview">
+                        <a is-active-route asp-area="Admin" class="nav-link">
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>
+                                @localizer["Administration"]
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a is-active-route asp-area="Admin" asp-controller="User" asp-action="Index" class="nav-link">
+                                    <i class="far fa-user-circle nav-icon"></i>
+                                    <p>@localizer["Users"]</p>
+                                </a>
+                            </li>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a is-active-route asp-area="Admin" asp-controller="Role" class="nav-link">
+                                        <i class="far fa-user-circle nav-icon"></i>
+                                        <p>@localizer["Roles"]</p>
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a is-active-route asp-area="Admin" asp-controller="StoreSetting" asp-action="Index" class="nav-link">
+                                    <i class="far fa-user-circle nav-icon"></i>
+                                    <p>@localizer["Stores"]</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a is-active-route asp-area="Admin" asp-controller="CampaignSetting" asp-action="Index" class="nav-link">
+                                    <i class="far fa-user-circle nav-icon"></i>
+                                    <p>@localizer["Campaigns"]</p>
+                                </a>
+                            </li>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item">
+                                    <a is-active-route asp-area="Admin" asp-controller="QuestionSetting" asp-action="Index" class="nav-link">
+                                        <i class="far fa-user-circle nav-icon"></i>
+                                        <p>@localizer["Questions"]</p>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <li class="nav-header">@localizer["System"]</li>
+                        <li is-active-route asp-area="Admin" class="nav-item has-treeview">
+                            <a is-active-route asp-area="Identity" class="nav-link">
+                                <i class="nav-icon fas fa-user"></i>
+                                <p>
+                                    @localizer["System"]
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a is-active-route asp-area="Identity" asp-page="/Account/AuditLog" class="nav-link">
+                                        <i class="far fa-user-circle nav-icon"></i>
+                                        <p>@localizer["Logs"]</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                }
+            </ul>
+        </nav>
+    </div>
+</aside>

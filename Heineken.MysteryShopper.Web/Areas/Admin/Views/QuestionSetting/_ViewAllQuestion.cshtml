@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model IEnumerable<SurveyUs.Web.Areas.Admin.Models.QuestionViewModel>
+
+<table class="table table-striped" id="questionTable">
+    <thead>
+        <tr>
+            <th>
+                @localizer["Assigned Campaign"]
+            </th>
+            <th>
+                @localizer["QuestionType"]
+            </th>
+            <th>
+                @localizer["Points"]
+            </th>
+            <th>
+                @localizer["CreatedOn"]
+            </th>
+            <th style="width:10%">
+                @localizer["Actions"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 1;
+        }
+        @foreach (var campaign in Model)
+        {
+            <tr>
+                <td>
+                    @* @campaign.Name *@
+                </td>
+                <td>
+                    @campaign.ResponseType.GetDescription()
+                </td>
+                <td>
+                    @campaign.Points
+                </td>
+                <td>
+                    @campaign.CreatedOn
+                </td>
+                @* <td>
+                    @if (campaign.IsActive)
+                    {
+                        <span class="badge badge-success">@localizer["Activated"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">@localizer["Deactivated"]</span>
+                    }
+                </td> *@
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action
+                        </button>
+                        <div class="dropdown-menu shadow animated--grow-in">
+                           @*  <a onclick="jQueryModalGet('/admin/campaign/OnGetCreateOrEdit?id=@campaign.Id','Edit Campaign')" class="dropdown-item">
+                                <i class="fas fa-pencil-alt"></i> @localizer["Edit"]
+                            </a>
+                            <form id="form_delete_@campaign.Id" asp-controller="Campaign" method="post" asp-action="OnPostDelete" asp-route-id="@campaign.Id" onsubmit="return jQueryModalDelete(this)" class="d-inline">
+                                <a href="javascript:$('#form_delete_@campaign.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i> @localizer["Delete"]</a>
+                            </form>
+                            <form id="form_activate_@campaign.Id" asp-area="Admin" asp-controller="Campaign" method="post" asp-action="OnPostActivate" asp-route-id="@campaign.Id" asp-route-isActivate="@campaign.IsActive">
+                                <a href="javascript:$('#form_activate_@campaign.Id').submit();" class="dropdown-item">
+                                    @if (campaign.IsActive)
+                                    {
+                                        <i class="fas fa-user-check"></i> @localizer["Deactivate Campaign"]
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-user-check"></i> @localizer["Activate Campaign"]
+                                    }
+                                </a>
+                            </form> *@
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#questionTable").DataTable({
+            searching: true
+        });
+
+    });
+</script>

@@ -1,0 +1,71 @@
+﻿@page
+@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+@{
+    var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewData["Title"]</title>
+    <partial name="_Styles" />
+</head>
+<body>
+    <div class="content-wrapper mrl-zero ml-0" id="contentWrapper" style="background-color: white;">
+        <div class="container" style="min-height: inherit;">
+            <!-- Outer Row -->
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div style="padding:3rem 3rem 3rem 3rem !important;">
+                        <div class="text-center" style="padding-bottom: 1rem;">
+                            <h1 id="logo" class="p-5">Mystery Drinker</h1>
+                            @*<img src="/images/Heineken_logo.jpg" id="staracademylogo" alt="help" height="300" align="middle" />*@
+                        </div>
+                        <div class="card" id="staracademycard">
+                            <form class="user" id="account" method="post">
+                                <label>Username</label>
+                                <div class="form-group">
+                                    <input asp-for="Input.Email" type="text" class="form-control form-control rounded-pill" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Enter Email/Username">
+                                    <small><span asp-validation-for="Input.Email" class="text-danger"></span></small>
+                                </div>
+                                <label>Password</label>
+                                <div class="form-group">
+                                    <input asp-for="Input.Password" type="password" class="form-control form-control rounded-pill" id="exampleInputPassword" placeholder="Password">
+                                    <small><span asp-validation-for="Input.Password" class="text-danger"></span></small>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox small">
+                                        <input asp-for="Input.RememberMe" type="checkbox" class="custom-control-input" id="customCheck">
+                                        <label class="custom-control-label" for="customCheck">@localizer["Remember Me"]</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary col-12 rounded-pill font-weight-bold bg-primary" style=" border-color: white; ">
+                                    @localizer["Login"]
+                                </button>
+                            </form>
+                            <br />
+                        </div>
+                        <div class="text-right" style="font-size: small;">
+                            Version @config["Application:WebVersion"]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_Scripts" />
+</body>
+</html>
+@await Component.InvokeAsync("Notyf")

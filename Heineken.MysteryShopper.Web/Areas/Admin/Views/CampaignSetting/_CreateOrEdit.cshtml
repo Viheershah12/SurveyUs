@@ -1,0 +1,43 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.CampaignSettingViewModel
+<form id="create-form" method="post" asp-area="Admin" asp-controller="CampaignSetting" asp-action="OnPostCreateOrEdit" asp-route-id="@Model.Id" asp-route-Status="@Model.Status" asp-route-name="@Model.Name" onsubmit="return jQueryModalPost(this);" class="needs-validation" novalidate>
+    <div class="modal-body">
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Name"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" asp-for="Name" name="Name" required="required" class="form-control">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Description"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" asp-for="Description" name="Description" required="required" class="form-control">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Start Date"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="date" asp-for="StartDate" name="StartDate" required="required" class="form-control">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["End Date"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="date" asp-for="EndDate" name="EndDate" required="required" class="form-control">
+                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

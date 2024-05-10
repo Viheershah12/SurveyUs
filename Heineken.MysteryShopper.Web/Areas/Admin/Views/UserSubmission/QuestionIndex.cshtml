@@ -1,0 +1,59 @@
+﻿@model SurveyUs.Web.Areas.Questions.Model.QuestionsViewModel
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">Submissions - @Model.CampaignName</h3>
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/admin/campaignSetting/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Campaign Settings</a>
+        <a href="~/admin/userSubmission/index?campaignId=@Model.CampaignId" class="btn btn-default">Submissions</a>
+        <a href="~/admin/userSubmission/viewSubmission?campaignId=@Model.CampaignId&storeId=@Model.StoreId&userId=@Model.UserId" class="btn btn-default">User Submission</a>
+    </div>
+</div>
+ <div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-2">
+                <b>Mystery Drinker : </b>
+            </div>
+            <div class="col-4">
+                @Model.UserName
+            </div>
+            
+            <div class="col-2">
+                <b>Submission Date : </b>
+            </div>
+            <div class="col-4">
+                @Model.SubmissionTime.ToString("dd MMMM yyyy HH:mm")
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                <b>Store Name : </b>
+            </div>
+            <div class="col-4">
+                @Model.StoreName
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#questionsTable").DataTable();
+            loadData();
+        });
+
+        function loadData(pageNumber = 1) {
+            $('#viewAll').load('/admin/usersubmission/SwitchPage?campaignId=@Model.CampaignId&storeId=@Model.StoreId&userId=@Model.UserId&pageNumber=' + pageNumber);
+        }
+    </script>
+}

@@ -1,0 +1,200 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.QuestionMappingViewModel
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">Question Mapping - @Model.CampaignName</h3>
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/admin/campaignSetting/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Campaign Settings</a>
+        <a href="~/admin/questionMapping/index?campaignId=@Model.CampaignId" class="btn btn-default">Question Mapping</a>
+    </div>
+</div>
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+@*         <div class="row p-2">
+            <div class="col-6">
+                @Html.DropDownListFor(m => m.CategoryId, Model.QuestionCategoryList, new { @class = "form-control" })
+            </div>
+        </div> *@
+            
+        @* <hr /> *@
+        <table class="table table-striped" id="questionTable">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Question Category</th>
+                    <th>Question Text</th>
+                    <th class="text-center">
+                        <div class="row">
+                            <div class="col-md-6 text-right">
+                                @localizer["Assign"]
+                            </div>
+                            <div class="col-md-6 text-left">
+                                <div class="form-check">
+                                    <input class="form-check-input question-checkbox" type="checkbox" onchange="selectAllClicked(this)" id="select-all-checkbox">
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+        <div class="text-right pt-3" style="margin-bottom: 0px !important">
+            <button id="save-btn" type="button" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        var initialCheckboxStates = {};
+        var editedQuestions = {};
+
+        $(document).ready(function () {
+            var table = $('#questionTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/questionmapping/getquestionmappinglisting",
+                    type: 'post',
+                    data: function (dto) {
+                        dto.campaignid = @Model.CampaignId;
+                        return dto;
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    {
+                        "targets": -1, // Target the last column (containing the checkbox)
+                        "className": "text-center" // Apply the 'text-center' class to center-align the content
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Id",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#questionTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "categoryName", "name": "CategoryName" },
+                    { "data": "questionText", "name": "QuestionText" },
+                    {
+                        "data": null, "name": "Assign", "orderable": false,
+                        "render": function (data, type, row) {
+                            var checkboxHtml = '<input class="form-check-input question-checkbox" type="checkbox" onchange="questionClicked(this)" value="' + row.id + '"';
+
+                            if (row.isAssigned) {
+                                checkboxHtml += ' checked';
+                            }
+
+                            checkboxHtml += '>';
+
+                            return checkboxHtml;
+                        }
+                    }
+                ],
+                "drawCallback": function (settings) { //repopulate information after page loads
+                    initialCheckboxState();
+                    editedQuestions = {};
+                    $('.question-checkbox').each(function () {
+                        var questionId = $(this).val();
+                        initialCheckboxStates[questionId] = $(this).prop('checked');
+                    });
+                }
+            });
+        });
+
+        function resetCheckboxes() {
+            $('.question-checkbox').each(function () {
+                var questionId = $(this).val();
+                var initialState = initialCheckboxStates[questionId];
+                $(this).prop('checked', initialState);
+            });
+            editedQuestions = {};
+        }
+
+        function selectAllClicked(checkbox) {
+            event.preventDefault();
+
+            var isChecked = $(checkbox).prop('checked');
+            $('.question-checkbox').prop('checked', isChecked);
+
+            $('.question-checkbox').each(function () {
+                var questionId = $(this).val();
+                var isChecked = $(this).prop('checked');
+                var wasCheckedInitially = initialCheckboxStates[questionId];
+                if (isChecked !== initialCheckboxStates[questionId]) {
+                    editedQuestions[questionId] = isChecked;
+                } else {
+                    delete editedQuestions[questionId];
+                }
+            });
+        }
+
+        $(document).on('click', '#save-btn', function (event) {
+            event.preventDefault();
+
+            var editedQuestionIds = Object.keys(editedQuestions).filter(function (key) {
+                return key !== "on";
+            });
+
+            var table = $('#questionTable').DataTable();
+
+            $.ajax({
+                url: '/Admin/QuestionMapping/OnPostAssign',
+                type: 'POST',
+                data: Object.assign({ editedQuestionIds: editedQuestionIds }, { campaignId: @Model.CampaignId }, { categoryId: @Model.CategoryId }),
+                success: function (response) {
+                    table.ajax.reload(null, false); //reloading table after successful assign
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+        });
+
+        function initialCheckboxState() {
+            $('.question-checkbox').each(function () {
+                var questionId = $(this).val();
+                initialCheckboxStates[questionId] = $(this).prop('checked');
+            });
+        }
+
+        function questionClicked(checkBox) {
+            var questionId = $(checkBox).val();
+            var isChecked = $(checkBox).prop('checked');
+            var wasCheckedInitially = initialCheckboxStates[questionId];
+
+            if (isChecked !== wasCheckedInitially) {
+                editedQuestions[questionId] = isChecked;
+            } else {
+                delete editedQuestions[questionId];
+            }
+        }
+    </script>
+}

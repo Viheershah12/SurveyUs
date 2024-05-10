@@ -1,0 +1,131 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Application.Constants
+@model List<SurveyUs.Web.Areas.Admin.Models.StoreViewModel>
+
+<table class="table table-striped" id="storesTable">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Store</th>
+            <th>State</th>
+            <th>Created On</th>
+            <th>Status</th>
+@*             <th>End Date</th> *@
+            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Delete)).Result.Succeeded || (AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Edit)).Result.Succeeded)
+            {
+                @* <th>Edit</th>
+                <th>Delete</th> *@
+                <th style="width:10%">Actions</th>
+            }       
+@*             @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <th>Generate Report</th>
+            } *@
+        </tr>
+    </thead>
+    <tbody>
+        @{ var i = 1; }
+        @foreach (var store in Model)
+        {
+            <tr>
+                <td>@i</td>
+
+                <td>@store.Name</td>
+                <td>@store.State</td>
+                <td>@store.CreatedOn.ToString("dd MMMM yyyy")</td>
+                <td>
+                    @if (store.IsActive)
+                    {
+                        <span class="badge badge-success">@localizer["Active"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">@localizer["Inactive"]</span>
+                    }
+                </td>
+                @* <td>@store.UpdatedOn.ToString("dd MMMM yyyy HH:mm")</td> *@
+
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Delete)).Result.Succeeded || (AuthorizationService.AuthorizeAsync(User, Permissions.Stores.Edit)).Result.Succeeded)
+                {
+                    <td text-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @if (store.IsActive)
+                                {
+                                    <a style='margin-right:16px' asp-area="Admin" asp-controller="StoreMapping" asp-action="Index" asp-route-storeId="@store.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i> @localizer[" Mystery Drinker Mappings"]
+                                    </a>
+                                }
+                                <a href="#" onclick="jQueryModalGet('/Admin/StoreSetting/OnGetEdit?id=@store.Id', 'Edit Store - @store.Name')" class="dropdown-item">
+                                    <i class="fas fa-pencil-alt"></i> @localizer["Edit Store"]
+                                </a>
+                                <form id="form_activate_@store.Id" asp-area="Admin" asp-controller="StoreSetting" method="post" asp-action="OnPostActivate" asp-route-storeId="@store.Id" asp-route-isActivate="@store.IsActive">
+                                    <a href="javascript:$('#form_activate_@store.Id').submit();" class="dropdown-item">
+                                        @if(store.IsActive)
+                                        {
+                                            <i class="fas fa-store"></i> @localizer["Deactivate Store"]
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-store"></i> @localizer["Activate Store"]
+                                        }
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                }
+
+                @* @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    <td>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+
+                            <div class="text-center pb-2">
+                                <a class="btn btn-primary text-white" is-active-route asp-controller="PDF" asp-area="PDF" asp-action="ScoreByStoreGuinnessAssessmentPDF" asp-route-storeId="@store.Id">
+                                    <i class="fas fa-file-pdf"></i> Guinness Test
+                                </a>
+                            </div>
+
+                            <div class="text-center pb-2">
+                                <a class="btn btn-primary text-white" is-active-route asp-controller="PDF" asp-area="PDF" asp-action="ScoreByStoreHeinekenAssessmentPDF" asp-route-storeId="@store.Id">
+                                    <i class="fas fa-file-pdf"></i> Heineken Test
+                                </a>
+                            </div>
+
+                            <div class="text-center pb-2">
+                                <a class="btn btn-primary text-white" is-active-route asp-controller="PDF" asp-area="PDF" asp-action="ScoreByStoreTheoryAssessmentPDF" asp-route-storeId="@store.Id">
+                                    <i class="fas fa-file-pdf"></i> Theory Test
+                                </a>
+                            </div>
+
+                            <div class="text-center pb-2">
+                                <a class="btn btn-primary text-white" is-active-route asp-controller="PDF" asp-area="PDF" asp-action="ScoreByStoreGlobalScorePDF" asp-route-storeId="@store.Id">
+                                    <i class="fas fa-file-pdf"></i> All Tests
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                } *@
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $("#storesTable").dataTable({
+            searching: true
+        });
+    });
+</script>
+

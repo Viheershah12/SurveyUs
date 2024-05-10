@@ -1,0 +1,259 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.ShopperMappingViewModel
+
+<style>
+    .fa-times {
+        font-size: 1.3em;
+        color: red;
+    }
+
+    .bold-active {
+        font-weight: bold;
+    }
+</style>
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">Mystery Drinker Mapping - @Model.StoreName</h3>
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/admin/storeSetting/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Store Settings</a>
+        <a href="~/admin/storeMapping/index?storeId=@Model.StoreId" class="btn btn-default">Mystery Drinker Mapping</a>
+    </div>
+</div>
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+        <table class="table table-striped" id="userTable">
+            <thead>
+                <tr>
+                    <th>
+                        @localizer["No"]
+                    </th>
+                    <th>
+                        @localizer["User"]
+                    </th>
+                    <th>
+                        @localizer["Email"]
+                    </th>
+                    <th>
+                        <div class="row">
+                            <div class="col-md-6 text-right">
+                                @localizer["Assign"]
+                            </div>
+                            <div class="col-md-6 text-left">
+                                <div class="form-check">
+                                    <input class="form-check-input user-checkbox" type="checkbox" onchange="selectAllClicked(this)" id="select-all-checkbox">
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            @* <tbody>
+                @{
+                    var i = 1;
+                }
+                @foreach (var user in Model.MShopperMapping)
+                {
+                    <tr>
+                        <td>
+                            @i
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-sm">
+                                    <a>
+                                        @user.FirstName @user.LastName
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a>
+                                @user.Email
+                            </a>
+                        </td>
+                        <td class="text-center pr-4">
+                            <div class="form-check">
+                                <input class="form-check-input user-checkbox" type="checkbox" onchange="userClicked(this)" value="@user.Id" @(user.IsAssigned ? "checked" : "")>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody> *@
+        </table>
+        <div class="text-right pt-3" style="margin-bottom: 0px !important">
+            <button id="save-btn" type="button" onclick="saveMapping()" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        var editedUsers = {};
+        var initialCheckboxStates = {};
+
+        $(document).ready(function () {
+            var table = $('#userTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/storemapping/getmysteryshopperlisting",
+                    type: 'post',
+                    data: function (dto) {
+                        dto.storeId = @Model.StoreId;
+                        return dto;
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    {
+                        "targets": -1, // Target the last column (containing the checkbox)
+                        "className": "text-center pr-4" // Apply the 'text-center' class to center-align the content
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Id",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#userTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    {
+                        "data": "null", "name": "FirstName",
+                        "render": function (data, type, row) {
+                            return row.firstName + " " + row.lastName;
+                        },
+                    },
+                    { "data": "email", "name": "Email" },
+                    {
+                        "data": null, "name": "Assign", "orderable": false,
+                        "render": function (data, type, row) {
+                            var checkboxHtml = '<input class="form-check-input user-checkbox" type="checkbox" onchange="userClicked(this)" value="' + row.id + '"';
+
+                            if (row.isAssigned) {
+                                checkboxHtml += ' checked';
+                            }
+
+                            checkboxHtml += '>';
+
+                            return checkboxHtml;
+                        }
+                    }
+                ],
+                "drawCallback": function (settings) { //repopulate information after page loads
+                    initialCheckboxState();
+                    editedStores = {};
+                    $('.user-checkbox').each(function () {
+                        var storeId = $(this).val();
+                        initialCheckboxStates[storeId] = $(this).prop('checked');
+                    });
+                }
+            });
+        });
+
+        function initialCheckboxState() {
+            $('.user-checkbox').each(function () {
+                var userId = $(this).val();
+                initialCheckboxStates[userId] = $(this).prop('checked');
+            });
+        }
+
+        function userClicked(checkBox) {
+            var userId = $(checkBox).val();
+            var isChecked = $(checkBox).prop('checked');
+            var wasCheckedInitially = initialCheckboxStates[userId];
+
+            if (isChecked !== wasCheckedInitially) {
+                editedUsers[userId] = isChecked;
+            } else {
+                delete editedUsers[userId];
+            }
+            console.log(editedUsers);
+            console.log(userId);
+        }
+
+        function selectAllClicked(checkbox) {
+            event.preventDefault();
+
+            var isChecked = $(checkbox).prop('checked');
+            $('.user-checkbox').prop('checked', isChecked);
+
+            $('.user-checkbox').each(function () {
+                var userId = $(this).val();
+                var isChecked = $(this).prop('checked');
+                var wasCheckedInitially = initialCheckboxStates[userId];
+                if (isChecked !== initialCheckboxStates[userId]) {
+                    editedUsers[userId] = isChecked;
+                } else {
+                    delete editedUsers[userId];
+                }
+            });
+        }
+
+        function saveMapping() {
+            event.preventDefault();
+
+            var editedUserIds = Object.keys(editedUsers).filter(function (key) {
+                return key !== "on";
+            });
+
+            var table = $('#userTable').DataTable();
+
+            $.ajax({
+                url: '/Admin/StoreMapping/OnPostAssign',
+                type: 'POST',
+                data: { editedUserIds: editedUserIds, storeId: @Model.StoreId },
+                success: function (response) {
+                    table.ajax.reload(null, false); //reloading table after successful assign
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                }
+            });
+        }
+
+        function resetCheckboxes() {
+            $('.user-checkbox').each(function () {
+                var userId = $(this).val();
+                var initialState = initialCheckboxStates[userId];
+                $(this).prop('checked', initialState);
+            });
+            editedUsers = {};
+        }
+        // $(document).on('click', '.paginate_button', function () {
+        //     resetCheckboxes();
+        // });
+
+        // $(document).ready(function loadData() {
+        //     $('#viewAll').load('/admin/storemapping/LoadAll?storeId=' + @Model.StoreId);
+
+        // });
+    </script>
+}

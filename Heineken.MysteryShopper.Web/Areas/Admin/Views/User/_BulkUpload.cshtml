@@ -1,0 +1,59 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Users.Models.BartenderViewModel
+@{
+    var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+}
+
+<form id="create-form" method="post" asp-controller="User" asp-action="SaveBartenderExcel" enctype="multipart/form-data">
+    <div class="modal-body">
+        <div class="form-group row">
+            <label class="col-md-3 col-lg-2 col-form-label">Store</label>
+            <div class="col-md-9 col-lg-10">
+                <select class="form-control" asp-for="Designation">
+                    <option value="All">All Store</option>
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Sabah")))
+                    {
+                        <option value="15th May Marriot Kota Kinabalu Hotel">Sabah</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Sarawak")))
+                    {
+                        <option value="17th May Riverside Kuching Hotel">Sarawak</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Selangor/KL")))
+                    {
+                        <option value="12th June M-Tree Puchong Hotel">Selangor/KL</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Johor")))
+                    {
+                        <option value="26th June St.Giles Johor Bahru Hotel">Johor</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Penang")))
+                    {
+                        <option value="3rd July Marriot Courtyard Georgetown Hotel">Penang</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Perak")))
+                    {
+                        <option value="5th July Weil Ipoh Hotel">Perak</option>
+                    }
+                    @if (!config["ExcludedVenue"].Split(",").ToList().Any(x => x.Contains("Finale")))
+                    {
+                        <option value="24th September LaLaport Bukit Bintang City Centre">Finale</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <input type="file" id="fileupload" name="File" />
+        </div>
+    </div>
+   
+    <div class="modal-footer">
+        <div class="form-group justify-content-end" style="margin-bottom: 0px !important">
+            <button type="submit" class="btn bg-success mr-1">Upload Bartender Excel</button>
+            <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript" language=javascript>$.validator.unobtrusive.parse(document);</script>

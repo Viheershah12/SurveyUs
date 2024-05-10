@@ -1,0 +1,84 @@
+﻿<style>
+    .link {
+        color: lawngreen;
+        font-size: 20px;
+    }
+
+    .link:hover {
+        color: blue;
+    }
+
+    .link-heineken {
+        color: black;
+        font-size: 20px;
+    }
+
+    .link-heineken:hover {
+        color: blue;
+    }
+</style>
+
+<div class="row">
+    @if (User.IsInRole("Guinness Judge") && !User.IsInRole("Heineken Judge") && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin") && !User.IsInRole("Bartender"))
+    {
+        <h3 class="mb-3 ml-2">@localizer["Bartenders"]</h3>
+    }
+    else if (User.IsInRole("Heineken Judge") && !User.IsInRole("Guinness Judge"))
+    {
+        <h3 class="mb-3 ml-2">@localizer["Bartenders"]</h3>
+    }
+    else
+    {
+        <h3 class="mb-3 ml-2">@localizer["Bartenders"]</h3>
+    }
+    <div class="col-4" style="margin-top: 5px;">
+        @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+        {
+            <a id="eraseState" class="link-heineken link-secondary" asp-area="Store" asp-controller="Store" asp-action="Tests" asp-route-storeId="@TempData.Peek("REGION_ID")" asp-route-userGroupId="@TempData.Peek("USERGROUPID")">
+                <i class="fas fa-arrow-alt-circle-left"></i>
+                Back to Assessment list 
+            </a>
+        }
+        else if (User.IsInRole("Guinness Judge") && User.IsInRole("Heineken Judge"))
+        {
+            <a id="eraseState" class="link-heineken link-secondary" asp-area="Store" asp-controller="Store" asp-action="Tests" asp-route-storeId="@TempData.Peek("REGION_ID")" asp-route-userGroupId="@TempData.Peek("USERGROUPID")">
+                <i class="fas fa-arrow-alt-circle-left"></i>
+                Back to Assessment list
+            </a>
+        }
+        else if (User.IsInRole("Guinness Judge") && !User.IsInRole("Heineken Judge"))
+        {
+            <a id="eraseState" class="link link-secondary" asp-area="Store" asp-controller="Store" asp-action="UserGroups" asp-route-storeId="@TempData.Peek("REGION_ID")" asp-route-userGroupId="@TempData.Peek("USERGROUPID")">
+                <i class="fas fa-arrow-alt-circle-left"></i>
+                Back to User Groups list
+            </a>
+        }
+        else if (User.IsInRole("Heineken Judge") && !User.IsInRole("Guinness Judge"))
+        {
+            <a id="eraseState" class="link-heineken link-secondary" asp-area="Store" asp-controller="Store" asp-action="UserGroups" asp-route-storeId="@TempData.Peek("REGION_ID")" asp-route-userGroupId="@TempData.Peek("USERGROUPID")">
+                <i class="fas fa-arrow-alt-circle-left"></i>
+                Back to User Groups list
+            </a>
+        }
+
+    </div>
+</div>
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+
+    <script>$(document).ready(function () {
+            $("#bartendersTable").DataTable();
+            loadData();
+        });
+
+        function loadData() {
+            $('#viewAll').load('/Users/Users/LoadAll');
+        };</script>
+}

@@ -1,0 +1,171 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model SurveyUs.Web.Areas.Questions.Model.QuestionsViewModel
+
+<style>
+    h5
+    {
+        padding-bottom: 10px;
+    }
+</style>
+
+<link rel="stylesheet" href="~/css/image-uploader.css" />
+
+<script src="~/js/site.js"></script>
+<script src="~/js/image-uploader.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('input').prop('disabled', true);
+
+        $('#nextPageBtn').click(function () {
+            var newPage = parseInt($(this).val()) + 1;
+            $('#NewPageNumber').val(newPage);
+            $('#IsSave').val("true");
+            loadData(newPage);
+        });
+
+        $('#previousPageBtn').click(function () {
+            var newPage = parseInt($(this).val()) - 1;
+            $('#NewPageNumber').val(newPage);
+            $('#IsSave').val("true");
+            loadData(newPage);
+        });
+    });
+</script>
+
+    @for (var i = 0; i < Model.Data.Count(); i++)
+    {
+        @Html.HiddenFor(m => m.Data[i].ResponseType)
+        var questionNumber = ((Model.PageNumber - 1) * 5) + i + 1;
+        var question = Model.Data.ElementAt(i);
+
+        <div class="card" style="background-color:#f4f6f9">
+            <div class="card-body">
+                <h5>
+                    Question @questionNumber
+                    @Html.HiddenFor(m => m.Data[i].QuestionId)
+                </h5>
+                <p>
+                    @question.QuestionText
+                </p>
+
+                @switch (question.ResponseType)
+                {
+                    case QuestionTypeEnum.TrueFalse:
+                    case QuestionTypeEnum.MultipleChoice:
+                        {
+                            @foreach (var option in question.AnswerOptions)
+                            {
+                                <div>
+                                    @Html.RadioButtonFor(m => m.Data[i].QuestionChoiceId, option.OptionId, new { @id = $"option{option.OptionId}" })
+                                    <label for="option@(option.OptionId)">@option.OptionText</label>
+                                </div>
+                            }
+                            break;
+                        }
+                    case QuestionTypeEnum.MultiSelect:
+                        {
+                            for (int j = 0; j < Model.Data[i].MultiSelectOptions.Count; j++)
+                            {
+                                <div>
+                                    @Html.HiddenFor(m => m.Data[i].MultiSelectOptions[j].OptionId)
+                                    @Html.CheckBoxFor(m => m.Data[i].MultiSelectOptions[j].IsSelected, new { id = $"option{Model.Data[i].MultiSelectOptions[j].OptionId}" })
+                                    <label for="option@(Model.Data[i].MultiSelectOptions[j].OptionId)">@Model.Data[i].MultiSelectOptions[j].OptionText</label>
+                                </div>
+                            }
+                            break;
+                        }
+                    case QuestionTypeEnum.ShortAnswer:
+                        {
+                            <div>
+                                @Html.TextBoxFor(m => m.Data[i].Answer, new { @class = "form-control", @placeholder = "Enter your answer" })
+                            </div>
+                            break;
+                        }
+                    case QuestionTypeEnum.PointBased:
+                        {
+                            @Html.HiddenFor(m => m.Data[i].PointScored)
+                            <div class="input-group">
+                                <input type="range" name="rangeInput" value="@Model.Data[i].PointScored" class="form-control-range col-3" min="0" max="@question.Points" oninput="$('#rangeval').text($(this).val()); $('#Data_@(i)__PointScored').val($(this).val());">
+                                <script>
+                                    //populateHiddenInput with 50
+                                    $('#Data_@(i)__PointScored').val($("#rangeval").text());
+                                </script>
+                                <p class="col-2 pt-3 pl-3" id="rangeval">@Model.Data[i].PointScored</p>
+                            </div>
+                            break;
+                        }
+                }
+
+                @if (question.HasMedia)
+                {
+                    <script>
+                        $('.input-images').imageUploader({
+                            label: 'Drag or Select Image for the Question',
+                            imagesInputName: 'Data[@i].QuestionMedia',
+                            extensions: ['.jpg', '.jpeg', '.pdf', '.png', '.JPG', '.JPEG', '.PDF', '.gif', '.bmp'],
+                            mimes: ['image/jpeg', 'application/pdf', 'image/png', 'image/gif', 'image/bmp'],
+                            maxSize: 5 * 1024 * 1024,
+                            maxFiles: 5,
+                        });
+                    </script>
+
+                    <div class="pl-2 pr-2">
+                        <div class="col-12 mb-3">
+                            <label>Question Media</label>
+
+                            @if (Model.IsActive && !Model.IsCompleted)
+                            {
+                                <div class="input-images"></div>
+                            }
+
+                            @if (Model.Data[i].QuestionMediaList.Count > 0 && Model.Data[i].QuestionMediaList != null)
+                            {
+                                <div class="image-uploader has-files">
+
+                                    <div class="uploaded">
+                                        @foreach (var file in Model.Data[i].QuestionMediaList)
+                                        {
+                                            <div class="uploaded-image">
+                                                <img onclick="openimg('@System.Convert.ToBase64String(file.FileBinary)');" title="@file.Name" src="data:image;base64,@System.Convert.ToBase64String(file.FileBinary)" />
+                                                @*<a href="javascript:DeleteAttachment(@file.Id)" class="delete-image"><i class="far fa-times-circle" aria-hidden="true"></i></a>*@
+                                                @Html.HiddenFor(x => file.Id)
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    }
+
+
+<div class="row justify-content-end p-2">
+@{
+    var currentPage = Model.PageNumber;
+    var lastPage = Model.TotalPages;
+    @if (currentPage != 1)
+    {
+        <div class="col-1 text-right">
+            <button id="previousPageBtn" value=@currentPage class="btn btn-secondary">
+                Previous
+            </button>
+        </div>
+    }
+
+    <div class="flex-container">
+        @if (currentPage != lastPage)
+        {
+            <button id="nextPageBtn" value=@currentPage class="btn btn-primary">
+                Next
+            </button>
+        }
+    </div>
+}
+</div>

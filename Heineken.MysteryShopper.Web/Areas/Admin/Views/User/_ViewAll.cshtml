@@ -1,0 +1,109 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<SurveyUs.Web.Areas.Admin.Models.UserViewModel>
+<table class="table table-striped" id="userTable">
+    <thead>
+        <tr>
+            <th>
+                @localizer["User"]
+            </th>
+            <th>
+                @localizer["Email"]
+            </th>
+            <th>Role</th>
+            <th>
+                @localizer["Status"]
+            </th>
+            <th style="width:10%">
+                @localizer["Actions"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>
+                    <div class="row">
+                      @*  @if (@user.ProfilePicture != null && user.ProfilePicture.Length > 0)
+                        {
+                            <div class="col-sm" style=" max-width: 80px;margin-right: 20px;">
+                                <img class="img-profile rounded-circle" style="height: 75px;width:75px;object-fit: cover;" src="data:image/*;base64,@(Convert.ToBase64String(@user.ProfilePicture))">
+                            </div>
+                        }
+                        else
+
+                        {
+                            <div class="col-sm" style="max-width:80px; margin-right: 20px;">
+                                <img class="img-profile rounded-circle" style="height: 75px;width:75px;object-fit: cover;" src="~/images/default-user.png">
+                            </div>
+                        }*@
+                        <div class="col-sm">
+                            <a>
+                                @user.FirstName @user.LastName
+                            </a>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <a>
+                        @user.Email
+                    </a>
+                </td>
+                <td>
+                    @user.Role
+                </td>
+                <td>
+                    @if (user.IsActive)
+                    {
+                        <span class="badge badge-success">@localizer["Active"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">@localizer["Inactive"]</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action
+                        </button>
+                        <div class="dropdown-menu shadow animated--grow-in">
+                            <a href="#" style='margin-right:16px' onclick="jQueryModalGet('/admin/user/OnGetResetPassword?userId=@user.Id','Reset Password - @(user.FirstName) @(user.LastName)')" class="dropdown-item">
+                                <i class="fas fa-key"></i> @localizer["Reset Password"]
+                            </a>
+
+                            <a href="#" style='margin-right:16px' onclick="jQueryModalGet('/admin/user/OnGetEditUser?userId=@user.Id','Edit User - @(user.FirstName) @(user.LastName)')" class="dropdown-item">
+                                <i class="fas fa-user-edit"></i> @localizer["Edit User"]
+                            </a>
+                            }
+                            @if (!user.IsActive)
+                            {
+                                <a style='margin-right:16px' asp-controller="User" asp-action="OnActivateUser" asp-route-userId="@user.Id" class="dropdown-item">
+                                    <i class="fas fa-user-check"></i> @localizer["Activate User"]
+                                </a>
+                            }
+                            else
+                            {
+                                <a style='margin-right:16px' asp-controller="User" asp-action="OnDeactivateUser" asp-route-userId="@user.Id" class="dropdown-item">
+                                    <i class="fas fa-user-minus"></i> @localizer["Deactivate User"]
+                                </a>
+                            }
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <a style='margin-right:16px' asp-controller="UserRole" asp-action="Index" asp-route-userId="@user.Id" class="dropdown-item">
+                                    <i class="fas fa-wrench"></i> @localizer["Manage Roles"]
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#userTable").DataTable();
+    });
+</script>

@@ -1,0 +1,79 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.UserViewModel
+
+<style>
+    .text-danger
+    {
+        font-size: 0.8em;
+    }
+</style>
+
+<form id="create-form" method="post" asp-area="Admin" asp-controller="User" asp-action="OnPostCreate" onsubmit="return jQueryModalPost(this);" class="needs-validation" novalidate>
+    @Html.HiddenFor(x => x.DataTableId)
+    <div class="modal-body">
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["First Name"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" asp-for="FirstName" name="FirstName" required="required" class="form-control">
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Last Name"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="text" asp-for="LastName" name="LastName" required="required" class="form-control">
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Email"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="email" asp-for="Email" name="Email" required="required" class="form-control">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+        @if (User.IsInRole("SuperAdmin"))
+        {
+            <div class="form-group row">
+                <label class="col-md-4 col-lg-3 col-form-label">Role</label>
+                <div class="col-md-8 col-lg-9">
+                    <select id="role-selection" class="form-control" required="required" asp-for="Role">
+                        <option value="Admin">Admin</option>
+                        <option value="Mystery Drinker">Mystery Drinker</option>
+                        <option value="Store Supervisor">Store Supervisor</option>
+                        <option value="SuperAdmin">Super Admin</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+            </div>
+        }
+        else
+        {
+            @Html.HiddenFor(x => x.Role)
+        }
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Password"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="password" asp-for="Password" name="Password" required="required" class="form-control">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-4 col-lg-3 col-form-label">@localizer["Confirm Password"]</label>
+            <div class="col-md-8 col-lg-9">
+                <input type="password" asp-for="ConfirmPassword" name="ConfirmPassword" required="required" class="form-control">
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group modal-footer justify-content-end" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

@@ -1,0 +1,156 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.ShopperMappingViewModel
+
+<style>
+    .fa-times
+    {
+        font-size: 1.3em;
+        color: red;
+    }
+</style>
+@* <form id="assign-mystery-shopper" method="post" asp-area="Admin" asp-controller="StoreMapping" asp-action="OnPostAssign" asp-route-storeId=@Model.StoreId enctype="multipart/form-data"> *@
+    <table class="table table-striped" id="userTable">
+        <thead>
+            <tr>
+                <th>
+                    @localizer["No"]
+                </th>
+                <th>
+                    @localizer["User"]
+                </th>
+                <th>
+                    @localizer["Email"]
+                </th>
+                <th>
+                    <div class="row">
+                        <div class="col-md-6 text-right">
+                            @localizer["Assign"]
+                        </div>
+                        <div class="col-md-6 text-left">
+                            <div class="form-check">
+                            <input class="form-check-input user-checkbox" type="checkbox" onchange="selectAllClicked(this)" id="select-all-checkbox">
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var i = 1;
+            }
+            @foreach (var user in Model.MShopperMapping)
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-sm">
+                                <a>
+                                    @user.FirstName @user.LastName
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a>
+                            @user.Email
+                        </a>
+                    </td>
+                    <td class="text-center pr-4">
+                        <div class="form-check">
+                        <input class="form-check-input user-checkbox" type="checkbox" onchange="userClicked(this)" value="@user.Id" @(user.IsAssigned ? "checked" : "")>
+                        </div>                       
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+    <div class="text-right pt-3" style="margin-bottom: 0px !important">
+        <button id="save-btn" type="button" onclick="saveMapping()" class="btn btn-success">Save</button>
+    </div>
+@* </form> *@
+
+<script>
+    $(document).ready(function () {
+        // var initialCheckboxStates = {};
+        // var editedUsers = {};
+
+        // //Track changes to checkboxes
+        // $('.user-checkbox').change(function () {
+        //     var userId = $(this).val();
+        //     var isChecked = $(this).prop('checked');
+        //     var wasCheckedInitially = initialCheckboxStates[userId];
+
+        //     if (isChecked !== wasCheckedInitially) {
+        //         editedUsers[userId] = isChecked;
+        //     } else {
+        //         delete editedUsers[userId];
+        //     }
+        // });
+
+        // $('#select-all-checkbox').change(function () {
+        //     var isChecked = $(this).prop('checked');
+        //     $('.user-checkbox').prop('checked', isChecked);
+
+        //     $('.user-checkbox').each(function () {
+        //         var userId = $(this).val();
+        //         var isChecked = $(this).prop('checked');
+        //         var wasCheckedInitially = initialCheckboxStates[userId];
+        //         if (isChecked !== initialCheckboxStates[userId]) {
+        //             editedUsers[userId] = isChecked;
+        //         } else {
+        //             delete editedUsers[userId];
+        //         }
+        //     });
+        // });
+
+        // $('#save-btn').click(function (event) {
+        //     event.preventDefault();
+
+        //     var editedUserIds = Object.keys(editedUsers).filter(function (key) {
+        //         return key !== "on";
+        //     });
+        //     $.ajax({
+        //         url: '/Admin/StoreMapping/OnPostAssign',
+        //         type: 'POST',
+        //         data: { editedUserIds: editedUserIds, storeId: @Model.StoreId },
+        //         success: function (res) {
+        //             editedUsers = {};
+        //             //window.location.reload();
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error('Error occurred:', error);
+        //         }
+        //     });
+        // });
+
+        // function resetCheckboxes() {
+        //     $('.user-checkbox').each(function () {
+        //         var userId = $(this).val();
+        //         var initialState = initialCheckboxStates[userId];
+        //         $(this).prop('checked', initialState);
+        //     });
+        //     editedUsers = {};
+        // }
+
+        // $(document).on('click', '.paginate_button', function () {
+        //     resetCheckboxes();
+        // });
+    });
+
+    $(document).ready(function () {
+        $("#userTable").DataTable({
+            searching: true,
+            columns: [
+                null,
+                null,
+                null,
+                { orderable: false },
+            ]
+        });
+    });
+</script>

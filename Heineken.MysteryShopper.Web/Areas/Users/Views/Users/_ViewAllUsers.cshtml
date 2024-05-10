@@ -1,0 +1,249 @@
+﻿
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<SurveyUs.Web.Areas.Users.Models.BartenderViewModel>
+
+<table id="bartendersTable" class="table table-striped" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+            {
+                <th>No.</th>
+                <th>Name</th>
+                <th>Ic</th>
+                <th>Gender</th>
+                <th>Outlet</th>
+                <th>Represented As</th>
+                <th>Telephone</th>
+                <th>Uniform Size</th>
+                <th>Status</th>
+                <th>Verified</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            }
+            else
+            {
+                <th>No.</th>
+                <th>Name</th>
+                <th>Ic</th>
+                <th>Gender</th>
+                <th>Outlet</th>
+                <th>Represented As</th>
+                <th>Telephone</th>
+                <th>Uniform Size</th>
+                <th>Status</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{ var i = 1; }
+        @foreach (var bartender in Model)
+        {
+            if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+            {
+                <tr>
+                    <td>@i</td>
+                    @if (Convert.ToInt32(TempData["TEST_ID"]) == 1 || bartender.TestId == 1)
+                    {
+                        if(bartender.GuinnessTestStatus)
+                        {
+                            <td>@bartender.Name</td>
+                        }
+                        else
+                        {
+                            <td><a is-active-route asp-controller="PhysicalTest" asp-area="Test" asp-action="Index" asp-route-testid="@bartender.TestId" asp-route-userId="@bartender.Id">@bartender.Name</a></td>
+                        }
+                    }
+                    else if (Convert.ToInt32(TempData["TEST_ID"]) == 2 || bartender.TestId == 2)
+                    {
+                        if (bartender.HeinekenTestStatus)
+                        {
+                            <td>@bartender.Name</td>
+                        }
+                        else
+                        {
+                            <td><a is-active-route asp-controller="PhysicalTest" asp-area="Test" asp-action="Index" asp-route-testid="@bartender.TestId" asp-route-userId="@bartender.Id">@bartender.Name</a></td>
+                        }
+                    }
+                    else
+                    {
+                        @if (!bartender.TheoryTestStatus)
+                        {
+                            <td>@bartender.Name</td>
+                        }
+                        else
+                        {
+                            <td><a is-active-route asp-controller="TheoryTest" asp-area="Test" asp-action="Index" asp-route-testId="@bartender.TestId" asp-route-userId="@bartender.UserId" asp-route-Id="@bartender.Id">@bartender.Name</a></td>
+                        }
+                    }
+
+                    <td>@bartender.Ic</td>
+                    <td>@bartender.Gender</td>
+                    <td>@bartender.Outlet</td>
+                    <td>@bartender.JoiningAs</td>
+                    <td>@bartender.Telephone</td>
+                    <td>@bartender.UniformSize</td>
+
+                    @if (Convert.ToInt32(TempData["TEST_ID"]) == 1 || bartender.TestId == 1)
+                    {
+                        @if (bartender.GuinnessTestStatus)
+                        {
+                            <td><span class="badge badge-success">Completed</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">InComplete</span></td>
+                        }
+                    }
+                    else if (Convert.ToInt32(TempData["TEST_ID"]) == 2 || bartender.TestId == 2)
+                    {
+                        @if (bartender.HeinekenTestStatus)
+                        {
+                            <td><span class="badge badge-success">Completed</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">InComplete</span></td>
+                        }
+                    }
+                    else
+                    {
+                        @if (bartender.TheoryTestStatus)
+                        {
+                            <td><span class="badge badge-success">Completed</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">InComplete</span></td>
+                        }
+                    }
+
+                    @if(User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+                    {
+
+                        @if (bartender.IsVerified)
+                        {
+                            <td>
+                                <div class="btn-group">
+                                    <form is-active-route asp-controller="Users" asp-area="Users" asp-action="ChangeVerificationStatus" asp-route-testId="@bartender.TestId" asp-route-userId="@bartender.Id" asp-route-isVerified="1">
+                                        <button type="submit" class="btn bg-success text-white">
+                                            Present
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <div class="btn-group">
+                                    <form is-active-route asp-controller="Users" asp-area="Users" asp-action="ChangeVerificationStatus" asp-route-testId="@bartender.TestId" asp-route-userId="@bartender.Id" asp-route-isVerified="0">
+                                        <button type="submit" class="btn bg-danger text-white">
+                                            Absent
+                                        </button>
+                                    </form>
+                                </div>    
+                            </td>
+                        }
+                    }
+                    else
+                    {
+                        @if (bartender.IsVerified)
+                        {
+                            <td><span class="badge badge-success">Verified</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">Unverified</span></td>
+                        }
+                    }
+
+                    <td class="text-center">
+                        <a onclick="jQueryModalGet('/users/users/OnGetEdit?id=@bartender.Id&testId=@TempData.Peek("TEST_ID")', 'Edit User')" )"><i class="fas fa-edit"></i></a>
+                    </td>
+
+                    <td class="text-center">
+                        <form id="form_delete_@bartender.Id" asp-area="Users" asp-controller="Users" method="post" asp-action="OnPostDelete" asp-route-testId="@bartender.TestId" asp-route-userId="@bartender.Id" asp-route-storeId="@bartender.Store" onsubmit="return jQueryModalDelete(this)">
+                            <a href="javascript:$('#form_delete_@bartender.Id').submit();" style="color: red;">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </form>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@i</td>
+
+                    @if (Convert.ToInt32(TempData["TEST_ID"]) == 2 || bartender.TestId == 2)
+                    {
+                        if (bartender.HeinekenTestStatus)
+                        {
+                            <td>@bartender.Name</td>
+                        }
+                        else
+                        {
+                            <td><a is-active-route asp-controller="PhysicalTest" asp-area="Test" asp-action="Index" asp-route-testid="@bartender.TestId" asp-route-userId="@bartender.Id">@bartender.Name</a></td>
+                        }
+                    }
+                    else if (Convert.ToInt32(TempData["TEST_ID"]) == 1 || bartender.TestId == 1)
+                    {
+                        if (bartender.GuinnessTestStatus)
+                        {
+                            <td>@bartender.Name</td>
+                        }
+                        else
+                        {
+                            <td><a is-active-route asp-controller="PhysicalTest" asp-area="Test" asp-action="Index" asp-route-testid="@bartender.TestId" asp-route-userId="@bartender.Id">@bartender.Name</a></td>
+                        }
+                    }
+
+                    <td>@bartender.Ic</td>
+                    <td>@bartender.Gender</td>
+                    <td>@bartender.Outlet</td>
+                    <td>@bartender.JoiningAs</td>
+                    <td>@bartender.Telephone</td>
+                    <td>@bartender.UniformSize</td>
+
+                    @if (Convert.ToInt32(TempData["TEST_ID"]) == 1 || bartender.TestId == 1)
+                    {
+                        @if (bartender.GuinnessTestStatus)
+                        {
+                            <td><span class="badge badge-success">Completed</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">InComplete</span></td>
+                        }
+
+                    }
+                    else if (Convert.ToInt32(TempData["TEST_ID"]) == 2 || bartender.TestId == 2)
+                    {
+                        @if (bartender.HeinekenTestStatus)
+                        {
+                            <td><span class="badge badge-success">Completed</span></td>
+                        }
+                        else
+                        {
+                            <td><span class="badge badge-danger">InComplete</span></td>
+                        }
+                    }
+                </tr>
+            }
+            i++;
+        }
+    </tbody>
+</table>
+
+<script src="~/js/site.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#bartendersTable').DataTable({
+            stateSave: true
+        });
+
+        $('#eraseState').on('click', function () {
+            table.state.clear();
+        });
+    });
+</script>

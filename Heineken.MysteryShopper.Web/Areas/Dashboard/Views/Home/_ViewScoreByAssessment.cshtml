@@ -1,0 +1,135 @@
+﻿
+
+@model List<SurveyUs.Web.Areas.Dashboard.Models.ScoreModel>
+
+
+
+<table id="tableScoreByAssessment@(Model.FirstOrDefault().Id)" class="table" width="100%" cellspacing="0">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Store</th>
+        <th>Score</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model[0].State == null)
+    {
+        Model.Clear();
+    }
+    @{ int i = 1; }
+    @foreach (var score in Model)
+    {
+        <tr>
+            <td>@(i++)</td>
+            <td>@score.Name</td>
+            <td>@score.State</td>
+            <td>@score.Score</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@*<script>
+    $(document).ready(function (){
+        var table = $('#tableScoreByAssessment@(Model.FirstOrDefault().Id)').DataTable({
+            paging: true,
+            info: false,
+            pageLength: 10,
+
+            drawCallback: function (settings) {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;
+
+                api.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id)_filter.dataTables_filter").hide();
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id)_paginate.dataTables_paginate.paging_simple_numbers").hide();
+
+        var storeIndex = 0;
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id) th").each(function (i) {
+            if ($($(this)).html() == "Store") {
+                storeIndex = i; 
+                return false;
+            }
+        });
+
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                var selectedItem = $('#testsStoreFilter').val();
+                var store = data[storeIndex];
+                if (selectedItem === "" || store.includes(selectedItem)) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        $("#testsStoreFilter").change(function (e) {
+            table.draw();
+        });
+
+        table.draw();
+    });
+</script>*@
+
+<script>
+    $(document).ready(function() {
+        var table = $('#tableScoreByAssessment@(Model.FirstOrDefault().Id)').DataTable({
+            paging: true,
+            info: false,
+            pageLength: 10,
+            drawCallback: function(settings) {
+                var api = this.api();
+                var startIndex = api.context[0]._iDisplayStart;
+                api.column(0, { search: 'applied', order: 'applied' }).nodes().each(function(cell, i) {
+                    cell.innerHTML = startIndex + i + 1;
+                });
+            }
+        });
+
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id)_filter.dataTables_filter").hide();
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id)_paginate.dataTables_paginate.paging_simple_numbers").hide();
+
+        var storeIndex = 0;
+        $("#tableScoreByAssessment@(Model.FirstOrDefault().Id) th").each(function (i) {
+            if ($($(this)).html() == "Store") {
+                storeIndex = i; 
+                return false;
+            }
+        });
+
+        $("#testsStoreFilter").change(function() {
+            var selectedStore = $(this).val();
+
+            // Clear all existing search filters
+            table.search('').columns().search('').draw();
+
+            if (selectedStore !== "") {
+                // Apply the selected store filter to the entire dataset
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var store = data[storeIndex];
+                        if (selectedStore === "" || store.includes(selectedStore)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                );
+            }
+
+            // Redraw the DataTable with the new filter
+            table.draw();
+
+            // Remove the custom search function from the global search array
+            $.fn.dataTable.ext.search.pop();
+        });
+
+        table.draw();
+    });
+</script>

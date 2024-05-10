@@ -1,1 +1,1 @@
-# SurveyUs
+# StarAcademyJudge

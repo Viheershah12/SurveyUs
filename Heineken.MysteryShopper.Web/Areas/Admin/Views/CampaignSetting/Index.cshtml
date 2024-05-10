@@ -1,0 +1,197 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">@localizer["Campaign Settings"]</h3>
+</div>
+
+<div class="card">
+        @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+        {
+            <div class="col-sm-9 col-12" style="padding: 20px;">
+                <a onclick="jQueryModalGet('/admin/campaignsetting/OnGetCreateOrEdit','Create Campaign')" class="btn bg-success">
+                    <i class="fa fa-plus-square"></i> Create Campaign
+                </a>
+            </div>
+                @* <div class="col-sm-3 pt-sm-3 col-12 text-right" style="padding-right: 20px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                            <form class="text-center pb-2" asp-area="PDF" asp-controller="PDF" asp-action="" method=" post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllUsersPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    All Users
+                                </button>
+                            </form>
+                            <form class="text-center pb-2" asp-area="PDF" asp-controller="PDF" asp-action="" method="post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllJudgesPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Judges
+                                </button>
+                            </form>
+                            <form class="text-center" asp-area="PDF" asp-controller="PDF" asp-action="" method="post">
+                                <button type="submit" name="print-pdf" formaction="/PDF/PDF/AllBartendersPDF" class="btn btn-primary text-white">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Bartenders
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div> *@
+        }
+        @*<a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>*@
+    <div id="viewAll" class="card-body table-responsive">
+        <table class="table table-striped" id="campaignTable" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>
+                        @localizer["No."]
+                    </th>
+                    <th>
+                        @localizer["Name"]
+                    </th>
+                    <th>
+                        @localizer["Start Date"]
+                    </th>
+                    <th>
+                        @localizer["End Date"]
+                    </th>
+                    <th>
+                        @localizer["Status"]
+                    </th>
+                    <th style="width:10%">
+                        @localizer["Actions"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#campaignTable').DataTable({
+                "proccessing": true,
+                "serverSide": true,
+                "filter": true,
+                "initComplete": function () {
+                    var $searchInput = $('div.dataTables_filter input');
+
+                    $searchInput.unbind();
+
+                    $searchInput.bind('keyup', function (e) {
+                        if (this.value.length > 3) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                        else if (e.key == 'Backspace' && this.value.length == 0) {
+                            table.search(this.value);
+                            table.ajax.reload(null, false);
+                        }
+                    });
+                },
+                "ajax": {
+                    dataType: 'json',
+                    url: "/admin/campaignsetting/GetCampaignListing",
+                    type: 'post',
+                    data: function (dto) {
+                        return dto;
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    { "orderable": false, "targets": -1 }
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Id",
+                        "render": function (data, type, row, meta) {
+                            var pageInfo = $('#campaignTable').DataTable().page.info();
+                            var rowNumber = meta.row + 1 + pageInfo.start;
+                            return rowNumber;
+                        }
+                    },
+                    { "data": "name", "name": "Name" },
+                    { "data": "startDateString", "name": "StartDateString" },
+                    { "data": "endDateString", "name": "EndDateString" },
+                    {
+                        "data": "statusString", "name": "StatusString",
+                        "render": function (data, type, row) {
+                            if (row.statusString == '@(StatusEnum.Expired)') {
+                                labelHtml = '<span class="badge badge-secondary">Expired</span>'
+                            }
+                            else if (row.statusString == '@(StatusEnum.Active)') {
+                                labelHtml = '<span class="badge badge-success">Active</span>'
+                            }
+                            else {
+                                labelHtml = '<span class="badge badge-danger">Inactive</span>'
+                            }
+
+                            return labelHtml;
+                        }
+                    },
+                    {
+                        "data": null, "orderable": false,
+                        "render": function (data, type, row) {
+                            var actionButtonHtml = '<div class="btn-group">' +
+                                '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>' +
+                                '<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">';
+
+                            actionButtonHtml += '<a href="/admin/campaignmapping/index?campaignid=' + row.id + '" class="dropdown-item">' +
+                                '<i class="fas fa-eye pr-1"></i>Store Mappings</a>';
+
+                            var isSuperAdmin = '@User.IsInRole("SuperAdmin")';
+
+                            if (isSuperAdmin == 'True') {
+                                actionButtonHtml += '<a href="/admin/questionmapping/index?campaignId=' + row.id + '" class="dropdown-item">' +
+                                    '<i class="fas fa-plus pr-1"></i>Question Mappings</a>';
+                            }
+
+                            actionButtonHtml += '<a href="#" onclick="jQueryModalGet(\'/admin/campaignsetting/OnGetCreateOrEdit?id=' + row.id + '\',\'Edit Campaign - ' + row.name + '\')" class="dropdown-item" >' +
+                                                '<i class="fas fa-pencil-alt pr-1"></i>Edit Campaign</a>';
+
+                            actionButtonHtml += '<a href="/admin/usersubmission/index?campaignid=' + row.id + '" class="dropdown-item" >' +
+                                                '<i class="fas fa-file-alt pr-1"></i>View Submissions</a>';
+
+                            actionButtonHtml += '</div></div>';
+
+                            return actionButtonHtml;
+                        }
+                    }
+                ],
+            });
+        });
+
+        function onQuestionCategoryChange(){
+            var categoryId = $('#categoryDropdown').val();
+
+            $.ajax({
+                url: '/Admin/campaignsetting/GetQuestionsByCategory', // Update the URL based on your backend endpoint
+                type: 'GET',
+                data: { categoryId: categoryId },
+                success: function (partialView) {
+                    // Replace the content of #questionMultiSelect with the rendered partial view
+                    $('#questionMultiSelect').html(partialView);
+                },
+                error: function () {
+                    console.log('Error fetching questions.');
+                }
+            });
+        }
+
+        function prepareOptionsAndSubmit() {
+            $('#create-mapping').submit();
+        }
+
+
+    </script>
+}

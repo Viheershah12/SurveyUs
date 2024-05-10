@@ -1,0 +1,26 @@
+﻿
+
+@model List<SurveyUs.Web.Areas.Dashboard.Models.ScoreModel>
+
+<table id="tableAverageScoreByStore" class="table table-responsive" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Store</th>
+            <th>Average Score</th>
+            <th>Participating Bartenders</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ int i = 1; }
+        @foreach (var score in Model)
+        {
+            <tr>
+                <td>@(i++)</td>
+                <td>@score.State</td>
+                <td>@score.Score</td>
+                <td>@score.BartenderCount</td>
+            </tr>
+        }
+    </tbody>
+</table>

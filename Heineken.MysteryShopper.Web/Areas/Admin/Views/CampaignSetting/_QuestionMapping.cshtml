@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SurveyUs.Web.Areas.Admin.Models.QuestionMappingViewModel
+
+<form id="create-mapping" method="post" asp-area="Admin" asp-controller="CampaignSetting" asp-action="OnPostCreateQuestionMapping" onsubmit="return jQueryModalPost(this);">
+    @Html.HiddenFor(x => x.CampaignId)
+    <div class="modal-body">
+
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">Question Category</label>
+        <div class="col-md-9">
+            @Html.DropDownListFor(model => model.CategoryId, Model.QuestionCategoryList, "Select a Question Category", new { @class = "form-control custom-select", id = "categoryDropdown", onchange = "onQuestionCategoryChange()" })
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div id="questionMultiSelect"></div>
+    </div>
+
+    <div class="modal-footer" style="margin-bottom: 0px !important">
+        <button type="button" class="btn btn-success" onclick="prepareOptionsAndSubmit()">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+</form>

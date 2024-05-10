@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SurveyUs.Domain.Enums
+@model SurveyUs.Web.Areas.Admin.Models.CampaignMappingsCreateModel
+
+<form id="assign-form" method="post" asp-area="Admin" asp-controller="StoreSetting" asp-action="OnPostAssignCampaigns" asp-route-storeId="@Model.StoreId" onsubmit="return jQueryModalPost(this);">
+<input type="hidden" name="selectedIds" id="selectedIds" />
+<table class="table table-striped" id="campaignTable">
+    <thead>
+        <tr>
+            <th>
+                No.
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Start Date
+            </th>
+            <th>
+                End Date
+            </th>
+            <th>
+                Status
+            </th>
+            <th style="width:10%;">
+                Select
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 1; 
+        }
+        @foreach (var campaign in Model.Campaigns)
+        {
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    @campaign.Name
+                </td>
+                <td>
+                    @campaign.StartDate
+                </td>
+                <td>
+                    @campaign.EndDate
+                </td>
+                <td>
+                @{
+                    switch (campaign.Status)
+                    {
+                        case StatusEnum.Active:
+                            <span class="badge badge-success">Active</span>
+                            break;
+                        case StatusEnum.Inactive:
+                            <span class="badge badge-danger">Inactive</span>
+                            break;
+                        case StatusEnum.Expired:
+                            <span class="badge badge-secondary">Expired</span>
+                            break;
+                    }
+                }
+                </td>
+                <td style="text-align: center">
+                    <input class="form-check-input" type="checkbox" name="selected" value="@campaign.Id">
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+<div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+    <button type="button" id="submitBtn" class="btn btn-success">Save</button>
+    <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+</div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $("#campaignTable").DataTable(
+        {
+            searching: true
+        });
+
+        $("#submitBtn").click(function () {
+            var selectedIds = $('input[name="selected"]:checked').map(function () {
+                return parseInt(this.value);
+            }).get();
+
+            $("#selectedIds").val(JSON.stringify(selectedIds));
+            $("#assign-form").submit();
+            $('#form-modal').modal('hide');
+        });
+    });
+</script>

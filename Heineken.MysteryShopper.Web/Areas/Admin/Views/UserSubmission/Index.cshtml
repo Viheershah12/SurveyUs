@@ -1,0 +1,44 @@
+﻿@model SurveyUs.Web.Areas.Admin.Models.UserSubmissionViewModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+<style>
+    .storeButton {
+        padding-right: 10px;
+    }
+</style>
+
+<div class="row">
+    <h3 class="mb-3 ml-2" style="color:black">Submissions - @Model.CampaignName</h3>
+</div>
+
+<div class="row">
+    <div class="btn-group btn-breadcrumb">
+        <a href="~/admin/campaignSetting/index" class="btn btn-default" disable><i class="fa fa-home pr-2"></i>Campaign Settings</a>
+        <a href="~/admin/userSubmission/index?campaignId=@Model.CampaignId" class="btn btn-default">Submissions</a>
+    </div>
+</div>
+
+<div class="card">
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/site.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#userSubmissionTable").DataTable(
+                {
+                    searching: false
+                });
+
+            loadData();
+        });
+
+        function loadData() {
+            $('#viewAll').load('/admin/usersubmission/loadall?campaignId=' + @Model.CampaignId);
+        };
+    </script>
+}

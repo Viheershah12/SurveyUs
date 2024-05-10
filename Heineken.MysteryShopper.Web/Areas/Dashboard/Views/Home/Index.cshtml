@@ -1,0 +1,183 @@
+﻿<link rel="stylesheet" href="~/css/table.css" />
+
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<SurveyUs.Web.Areas.Dashboard.Models.ScoreModel>
+
+<style>
+    .responsive {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .storeButton{
+        padding-right: 5px;
+    }
+
+</style>
+
+<div class="row">
+    <h3 class="mb-3 ml-2">@localizer["Dashboard"]</h3>
+</div>
+
+<div class="container-fluid p-0">
+    <div class="col-12 p-0">
+        <div class="card p-2">
+            <div class="row mb-4 px-2 align-items-center">
+                <div class="col-6">
+                    <h5>Global Score</h5>
+                </div>
+                <div class="col-6 text-right">
+                    <form asp-area="PDF" asp-controller="PDF" asp-action="GlobalScorePDF" method="post">
+                        <button type="submit" name="print-pdf" formaction="/PDF/PDF/GlobalScorePDF" class="btn btn-primary text-white">
+                            <i class="fas fa-file-pdf"></i>
+                             PDF
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-12">
+                <div id="viewGlobalScore"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-2">
+                    <div class="col-12 mb-2">
+                        <div class="row mb-2 px-2 align-items-center">
+                            <div class="col-6">
+                                <h5>Average Score by Store</h5>
+                            </div>
+                            <div class="col-6 text-right">
+                                    <form asp-area="PDF" asp-controller="PDF" asp-action="AverageScoreByStorePDF" method="post">
+                                        <button type="submit" name="print-pdf" formaction="/PDF/PDF/AverageScoreByStorePDF" class="btn btn-primary text-white">
+                                            <i class="fas fa-file-pdf"></i>
+                                            PDF
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <div id="averageScoreByStore" width="400" height="400"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card p-2">
+        @if (Model != null)
+        {
+            <div id="testDropdown" style="margin: 10px;">
+                <select id="testsStoreFilter" class="form-control col-sm-6 col-md-3 offset-md-6 float-right">
+                    <option value="">All Store</option>
+                    @foreach (var state in Model[0].StoreOptions)
+                    {
+                        <option value="@state.State">@state.State</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="row">
+
+            
+                <div class="col-md-4 col-sm-12">
+                    <div class="card p-2">                    
+                        <div class="col-12 mb-2">
+                            <div class="row mb-2 px-2 align-items-center">
+                                <div class="col-6">
+                                    <h6>TOP 10 Score by Heineken Assessment</h6>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <form asp-area="PDF" asp-controller="PDF" asp-action="ScoreByHeinekenAssessmentPDF" method="post">
+                                        <button type="submit" name="print-pdf" formaction="/PDF/PDF/ScoreByHeinekenAssessmentPDF" class="btn btn-primary text-white">
+                                            <i class="fas fa-file-pdf"></i>
+                                             PDF
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scoreByHeinekenAssessment" width="400" height="400"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="card p-2">
+                        <div class="col-12 mb-2">
+                            <div class="row mb-2 px-2 align-items-center">
+                                <div class="col-6">
+                                    <h6>TOP 10 Score by Guinness Assessment</h6>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <form asp-area="PDF" asp-controller="PDF" asp-action="ScoreByGuinnessAssessmentPDF" method="post">
+                                        <button type="submit" name="print-pdf" formaction="/PDF/PDF/ScoreByGuinnessAssessmentPDF" class="btn btn-primary text-white">
+                                            <i class="fas fa-file-pdf"></i>
+                                             PDF
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scoreByGuinnessAssessment" width="400" height="400"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="card p-2">
+                        <div class="col-12 mb-2">
+                            <div class="row mb-2 px-2 align-items-center">
+                                <div class="col-6">
+                                    <h6>TOP 10 Score by Theory Assessment</h6>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <form asp-area="PDF" asp-controller="PDF" asp-action="ScoreByTheoryAssessmentPDF" method="post">
+                                        <button type="submit" name="print-pdf" formaction="/PDF/PDF/ScoreByTheoryAssessmentPDF" class="btn btn-primary text-white">
+                                            <i class="fas fa-file-pdf"></i>
+                                             PDF
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="scoreByTheoryAssessment" width="400" height="400"></div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //load Global Score
+            //$('#globalScore').load('Dashboard/Home/GlobalScore');
+
+            //load Average Score By Store
+            $('#averageScoreByStore').load('Dashboard/Home/AverageScoreByStore');
+
+            //load Score By Heineken Assessment
+            $('#scoreByHeinekenAssessment').load('Dashboard/Home/ScoreByHeinekenAssessment');
+
+            //load Score By Guinness Assessment
+            $('#scoreByGuinnessAssessment').load('Dashboard/Home/ScoreByGuinnessAssessment');
+
+            //load Score By Theory Assessment
+            $('#scoreByTheoryAssessment').load('Dashboard/Home/ScoreByTheoryAssessment');
+        });
+    
+    </script>
+    
+    <script>
+        $(document).ready(function () {
+            $("#globalScoresTable").DataTable();
+            loadClaim();
+        });
+
+        function loadClaim() {
+            $('#viewGlobalScore').load('/Dashboard/Home/GlobalScore');
+        };
+    </script>
+    
+    <script>
+        
+    </script>
+}
